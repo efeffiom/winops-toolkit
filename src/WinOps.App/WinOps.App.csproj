@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>WinOps.Toolkit</AssemblyName>
+    <RootNamespace>WinOps.App</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.15" />
+    <PackageReference Include="Serilog" Version="4.4.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WinOps.Core\WinOps.Core.csproj" />
+    <ProjectReference Include="..\WinOps.Windows\WinOps.Windows.csproj" />
+    <ProjectReference Include="..\WinOps.PowerShell\WinOps.PowerShell.csproj" />
+    <ProjectReference Include="..\WinOps.Persistence\WinOps.Persistence.csproj" />
+    <ProjectReference Include="..\WinOps.Services\WinOps.Services.csproj" />
+  </ItemGroup>
+</Project>

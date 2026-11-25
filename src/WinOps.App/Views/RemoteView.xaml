@@ -1,0 +1,67 @@
+<Page x:Class="WinOps.App.Views.RemoteView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{DynamicResource AppBackground}">
+    <Grid Margin="26,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="Refresh endpoints" Command="{Binding RefreshCommand}" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Test connection" Command="{Binding TestConnectionCommand}" Style="{StaticResource BaseButton}"/>
+            <Button Content="System info" Command="{Binding GetRemoteCommand}" CommandParameter="info" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Services" Command="{Binding GetRemoteCommand}" CommandParameter="services" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Processes" Command="{Binding GetRemoteCommand}" CommandParameter="processes" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Events" Command="{Binding GetRemoteCommand}" CommandParameter="events" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Run script" Command="{Binding RunScriptCommand}" Style="{StaticResource DangerButton}"/>
+        </StackPanel>
+        <Border Grid.Row="1" Style="{StaticResource Card}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Margin="0,0,12,0">
+                    <TextBlock Text="Saved endpoints" Style="{StaticResource SectionTitle}"/>
+                    <ListBox ItemsSource="{Binding Endpoints}" SelectedItem="{Binding SelectedEndpoint}" Height="170" DisplayMemberPath="DisplayName"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Delete" Command="{Binding DeleteEndpointCommand}" Style="{StaticResource SecondaryButton}"/>
+                    </StackPanel>
+                    <TextBlock Text="Add or update endpoint" Style="{StaticResource SectionTitle}" Margin="0,12,0,0"/>
+                    <TextBox Text="{Binding HostName}"/>
+                    <TextBox Text="{Binding DisplayName}"/>
+                    <TextBox Text="{Binding Group}"/>
+                    <TextBox Text="{Binding Description}"/>
+                    <CheckBox Content="Use current credentials" IsChecked="{Binding UsesCurrentCredentials}" Foreground="{DynamicResource TextBrush}" Margin="0,4,0,8"/>
+                    <Button Content="Save endpoint" Command="{Binding SaveEndpointCommand}" Style="{StaticResource BaseButton}"/>
+                    <TextBlock Text="Remote script" Style="{StaticResource SectionTitle}" Margin="0,12,0,0"/>
+                    <TextBox Text="{Binding RemoteScript}" AcceptsReturn="True" FontFamily="Consolas" Height="150"/>
+                </StackPanel>
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="Event count" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBox Text="{Binding EventCount}" Width="80"/>
+                    </StackPanel>
+                    <Border Grid.Row="1" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="8" Padding="12">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="Output" Style="{StaticResource SectionTitle}"/>
+                            <ListBox ItemsSource="{Binding OutputLines}" FontFamily="Consolas" FontSize="12"/>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}" CornerRadius="8" Padding="12,8">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource MutedTextBrush}"/>
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource ErrorBrush}" Margin="14,0,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

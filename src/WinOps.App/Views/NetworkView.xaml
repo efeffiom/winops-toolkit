@@ -1,0 +1,147 @@
+<Page x:Class="WinOps.App.Views.NetworkView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{DynamicResource AppBackground}">
+    <Grid Margin="26,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="Refresh" Command="{Binding RefreshCommand}" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Ping" Command="{Binding PingCommand}" Style="{StaticResource BaseButton}"/>
+            <Button Content="Traceroute" Command="{Binding TracerouteCommand}" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="DNS lookup" Command="{Binding ResolveDnsCommand}" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Test port" Command="{Binding TestPortCommand}" Style="{StaticResource SecondaryButton}"/>
+            <TextBox Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" Width="190"/>
+            <TextBox Text="{Binding Port}" Width="70"/>
+            <Button Content="Export adapters" Command="{Binding ExportCommand}" Style="{StaticResource SecondaryButton}"/>
+        </StackPanel>
+        <Border Grid.Row="1" Style="{StaticResource Card}">
+            <TabControl>
+                <TabItem Header="Adapters &amp; IP configuration">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <WrapPanel Margin="0,0,0,10">
+                            <Button Content="Flush DNS" Command="{Binding RunCommandCommand}" CommandParameter="flushdns" Style="{StaticResource SecondaryButton}"/>
+                            <Button Content="Register DNS" Command="{Binding RunCommandCommand}" CommandParameter="registerdns" Style="{StaticResource SecondaryButton}"/>
+                            <Button Content="Release" Command="{Binding RunCommandCommand}" CommandParameter="release" Style="{StaticResource SecondaryButton}"/>
+                            <Button Content="Renew" Command="{Binding RunCommandCommand}" CommandParameter="renew" Style="{StaticResource SecondaryButton}"/>
+                            <Button Content="Reset Winsock" Command="{Binding RunCommandCommand}" CommandParameter="winsock" Style="{StaticResource DangerButton}"/>
+                            <Button Content="Reset TCP/IP" Command="{Binding RunCommandCommand}" CommandParameter="tcpip" Style="{StaticResource DangerButton}"/>
+                        </WrapPanel>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding Adapters}" SelectedItem="{Binding SelectedAdapter}" Height="250">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="230"/>
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90"/>
+                                <DataGridTextColumn Header="Type" Binding="{Binding InterfaceType}" Width="140"/>
+                                <DataGridTextColumn Header="IPv4" Binding="{Binding Ipv4Addresses, Converter={StaticResource ListToStringConverter}}" Width="180"/>
+                                <DataGridTextColumn Header="Gateway" Binding="{Binding DefaultGateway}" Width="160"/>
+                                <DataGridTextColumn Header="DNS" Binding="{Binding DnsServers, Converter={StaticResource ListToStringConverter}}" Width="200"/>
+                                <DataGridTextColumn Header="MAC" Binding="{Binding MacAddress}" Width="160"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <GroupBox Grid.Row="2" Header="Selected adapter configuration" Margin="0,10,0,0" Foreground="{DynamicResource TextBrush}">
+                            <WrapPanel Margin="6">
+                                <TextBox Text="{Binding DnsServers}" Width="260" ToolTip="Comma-separated DNS servers"/>
+                                <Button Content="Set DNS" Command="{Binding ApplyDnsCommand}" Style="{StaticResource SecondaryButton}"/>
+                                <TextBox Text="{Binding StaticIp}" Width="140"/>
+                                <TextBox Text="{Binding PrefixLength}" Width="55"/>
+                                <TextBox Text="{Binding Gateway}" Width="140"/>
+                                <Button Content="Apply static IP" Command="{Binding ApplyStaticIpCommand}" Style="{StaticResource DangerButton}"/>
+                                <Button Content="Restore DHCP" Command="{Binding RestoreDhcpCommand}" Style="{StaticResource BaseButton}"/>
+                            </WrapPanel>
+                        </GroupBox>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Diagnostics">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,0,10,0">
+                            <TextBlock Text="Ping result" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="{Binding PingResult.Host, StringFormat='Host: {0}'}"/>
+                            <TextBlock Text="{Binding PingResult.Address, StringFormat='Address: {0}'}"/>
+                            <TextBlock Text="{Binding PingResult.Success, StringFormat='Success: {0}'}"/>
+                            <TextBlock Text="{Binding PingResult.PacketsReceived, StringFormat='Replies: {0}'}"/>
+                            <TextBlock Text="{Binding PingResult.AverageMs, StringFormat='Average: {0:0.##} ms'}"/>
+                            <TextBlock Text="{Binding PingResult.Error}" Foreground="{DynamicResource ErrorBrush}"/>
+                            <TextBlock Text="DNS results" Style="{StaticResource SectionTitle}" Margin="0,12,0,0"/>
+                            <DataGrid ItemsSource="{Binding DnsResults}" Height="230">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100"/>
+                                    <DataGridTextColumn Header="Records" Binding="{Binding Records, Converter={StaticResource ListToStringConverter}}" Width="380"/>
+                                    <DataGridTextColumn Header="Error" Binding="{Binding Error}" Width="220"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                            <TextBlock Text="Traceroute" Style="{StaticResource SectionTitle}"/>
+                            <DataGrid ItemsSource="{Binding Hops}" Height="260">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Hop" Binding="{Binding Hop}" Width="60"/>
+                                    <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="200"/>
+                                    <DataGridTextColumn Header="Latency" Binding="{Binding LatencyMs, StringFormat='{}{0:0.##} ms'}" Width="110"/>
+                                    <DataGridTextColumn Header="Error" Binding="{Binding Error}" Width="160"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Text="Wi-Fi &amp; public IP" Style="{StaticResource SectionTitle}" Margin="0,12,0,0"/>
+                            <TextBlock Text="{Binding Wifi.Ssid, StringFormat='SSID: {0}'}"/>
+                            <TextBlock Text="{Binding Wifi.SignalStrengthPercent, StringFormat='Signal: {0}'}"/>
+                            <TextBlock Text="{Binding PublicIp, StringFormat='Public IP: {0}'}"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Routes, ARP &amp; connections">
+                    <TabControl>
+                        <TabItem Header="Routes">
+                            <DataGrid ItemsSource="{Binding Routes}" Height="420">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Destination" Binding="{Binding Destination}" Width="180"/>
+                                    <DataGridTextColumn Header="Mask" Binding="{Binding Mask}" Width="180"/>
+                                    <DataGridTextColumn Header="Gateway" Binding="{Binding Gateway}" Width="180"/>
+                                    <DataGridTextColumn Header="Interface" Binding="{Binding Interface}" Width="220"/>
+                                    <DataGridTextColumn Header="Metric" Binding="{Binding Metric}" Width="90"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                        <TabItem Header="ARP">
+                            <DataGrid ItemsSource="{Binding ArpEntries}" Height="420">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="IP" Binding="{Binding IpAddress}" Width="180"/>
+                                    <DataGridTextColumn Header="MAC" Binding="{Binding MacAddress}" Width="180"/>
+                                    <DataGridTextColumn Header="Interface" Binding="{Binding Interface}" Width="320"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                        <TabItem Header="Connections">
+                            <DataGrid ItemsSource="{Binding Connections}" Height="420">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Protocol" Binding="{Binding Protocol}" Width="90"/>
+                                    <DataGridTextColumn Header="Local" Binding="{Binding LocalAddress}" Width="180"/>
+                                    <DataGridTextColumn Header="Local port" Binding="{Binding LocalPort}" Width="100"/>
+                                    <DataGridTextColumn Header="Remote" Binding="{Binding RemoteAddress}" Width="180"/>
+                                    <DataGridTextColumn Header="Remote port" Binding="{Binding RemotePort}" Width="100"/>
+                                    <DataGridTextColumn Header="State" Binding="{Binding State}" Width="140"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                    </TabControl>
+                </TabItem>
+            </TabControl>
+        </Border>
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}" CornerRadius="8" Padding="12,8">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource MutedTextBrush}"/>
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource ErrorBrush}" Margin="14,0,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

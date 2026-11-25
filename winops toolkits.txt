@@ -1,0 +1,923 @@
+WINOPS TOOLKIT: AUTONOMOUS DEVELOPMENT MASTER INSTRUCTION
+
+PROJECT IDENTITY
+
+Project Name: WinOps Toolkit
+
+Product Type: Native Windows Desktop Administration and IT Troubleshooting Platform
+
+Target Audience:
+
+- IT Support Specialists
+- Helpdesk Technicians
+- System Administrators
+- Network Administrators
+- Windows Server Administrators
+- IT Consultants
+- Managed Service Providers
+
+Primary Goal:
+
+Develop a professional, modular Windows administration application that provides a unified interface for diagnosing, monitoring, maintaining, securing, automating, and administering Windows computers and authorized remote systems.
+
+The application must be a real, functional administrative tool. Do not create a frontend-only mockup, a dashboard containing fake data, or buttons that do nothing.
+
+---
+
+AUTONOMOUS EXECUTION POLICY
+
+Operate autonomously throughout the project.
+
+You are authorized to:
+
+- Research appropriate technical implementations.
+- Select the best libraries and frameworks.
+- Design application architecture.
+- Create and modify files.
+- Install required development dependencies.
+- Implement features.
+- Create database schemas and migrations.
+- Write automated tests.
+- Refactor code.
+- Fix bugs.
+- Run builds.
+- Run tests.
+- Perform code analysis.
+- Improve UI/UX.
+- Create documentation.
+- Implement security controls.
+- Make reasonable engineering decisions without asking me questions.
+
+Do not stop to request approval for ordinary technical decisions.
+
+When a feature has multiple possible implementations, select the most maintainable, secure, reliable, and appropriate solution.
+
+Maintain a PROJECT_STATUS.md document and continuously update it.
+
+Maintain:
+
+- Implemented features
+- In-progress features
+- Pending features
+- Known bugs
+- Technical limitations
+- Test results
+- Build status
+- Architectural decisions
+
+Never claim a feature is completed unless it is implemented and verified.
+
+If a feature cannot be completed because of environmental restrictions, document the limitation, implement the best available fallback, and continue with other tasks.
+
+---
+
+TECHNOLOGY STACK
+
+Use the following architecture unless research identifies a compelling technical reason to improve it.
+
+Application:
+
+- C#
+- .NET 10 LTS
+- WPF
+- MVVM architecture
+
+UI:
+
+- Modern professional desktop interface
+- Material Design-inspired design system
+- Light and dark themes
+- Fluent navigation
+- Responsive layouts
+- Reusable components
+- Consistent typography and spacing
+
+Automation:
+
+- PowerShell 7
+- Windows PowerShell 5.1 compatibility where necessary
+- PowerShell SDK or a secure process execution abstraction
+
+System integration:
+
+- Windows APIs
+- CIM
+- WMI where appropriate
+- Windows Management Instrumentation
+- Native Windows management interfaces
+
+Database:
+
+- SQLite
+- Entity Framework Core where appropriate
+
+Logging:
+
+- Structured logging
+- Serilog
+
+Testing:
+
+- xUnit
+- Pester
+- Integration tests
+- UI tests where practical
+
+Charts:
+
+- Use a maintained .NET charting library.
+
+Installer:
+
+- Choose a reliable Windows installer technology.
+- Support installation and uninstallation.
+- Provide appropriate application shortcuts.
+- Support application upgrades.
+
+---
+
+ARCHITECTURAL REQUIREMENTS
+
+Implement a modular architecture.
+
+Separate:
+
+1. Presentation layer
+2. Application services
+3. Core domain
+4. Windows integration
+5. PowerShell execution
+6. Network functionality
+7. Security functionality
+8. Active Directory functionality
+9. Remote administration
+10. Reporting
+11. Persistence
+12. Logging
+13. Testing
+
+Use dependency injection.
+
+Use interfaces for system services where appropriate.
+
+Avoid tightly coupling UI components to PowerShell scripts.
+
+Implement centralized error handling.
+
+Implement cancellation support for long-running tasks.
+
+Prevent UI freezing during administrative operations.
+
+Use asynchronous execution wherever appropriate.
+
+All long-running operations must provide progress reporting and cancellation when technically possible.
+
+---
+
+MODULE 1: APPLICATION FOUNDATION
+
+Create:
+
+- Application shell
+- Navigation sidebar
+- Dashboard
+- Module framework
+- Search
+- Notifications
+- Settings
+- Theme management
+- Logging
+- Permission detection
+- Administrator status detection
+- Version information
+- About page
+- Keyboard shortcuts
+
+Create a consistent design system.
+
+Use professional layouts appropriate for IT administrators.
+
+Do not use placeholder functionality.
+
+---
+
+MODULE 2: SYSTEM DASHBOARD
+
+Implement real-time or periodically refreshed system information.
+
+Display:
+
+- Computer name
+- Windows edition
+- Windows version
+- Build number
+- Architecture
+- Manufacturer
+- Model
+- BIOS
+- Serial number where accessible
+- CPU
+- RAM
+- Disk inventory
+- Disk capacity
+- Network adapters
+- IP configuration
+- System uptime
+- Last boot time
+- Administrator status
+- Windows activation information where legitimately accessible
+- Defender status
+- Firewall status
+- Windows Update status
+- Battery information where applicable
+
+Provide dashboard widgets for:
+
+- CPU utilization
+- Memory utilization
+- Disk utilization
+- Network traffic
+- System uptime
+
+Implement data refresh controls.
+
+Clearly distinguish unavailable data from zero values.
+
+---
+
+MODULE 3: SYSTEM ADMINISTRATION
+
+Implement:
+
+- Process manager
+- Service manager
+- Startup applications
+- Scheduled tasks
+- Installed software inventory
+- Windows features
+- Device inventory
+- Driver inventory
+- Environment variables
+- System information
+- System restore point management
+- Shutdown
+- Restart
+- Logoff
+- System configuration tools
+
+Process manager:
+
+- Process name
+- PID
+- CPU
+- Memory
+- Executable path
+- User
+- Command line
+- Parent process
+- Process tree
+
+Services:
+
+- Search
+- Filter
+- Start
+- Stop
+- Restart
+- Startup type modification
+- Dependencies
+- Service details
+- Export inventory
+
+Scheduled tasks:
+
+- Search
+- View details
+- Enable
+- Disable
+- Run
+- Export
+
+Implement safeguards for critical Windows processes and services.
+
+---
+
+MODULE 4: NETWORK TOOLKIT
+
+Implement:
+
+- Network adapter inventory
+- IPv4 and IPv6
+- MAC addresses
+- DNS servers
+- Gateway
+- DHCP status
+- Interface status
+- Adapter speed
+- Wi-Fi information
+- IP configuration
+
+Network diagnostics:
+
+- Ping
+- Traceroute
+- DNS lookup
+- NSLookup
+- TCP connectivity tests
+- Port tests
+- Route table
+- ARP table
+- Netstat
+- Public IP lookup
+- Network latency
+- Packet loss
+- Wi-Fi diagnostics
+- Network discovery on authorized networks
+
+Network configuration:
+
+- Enable adapter
+- Disable adapter
+- Renew DHCP
+- Release DHCP
+- Flush DNS
+- Register DNS
+- Set DNS servers
+- Configure static IP
+- Restore DHCP
+- Reset Winsock
+- Reset TCP/IP
+
+Warn users before actions that can disconnect their computer.
+
+Validate network configuration before applying changes.
+
+Where possible, implement rollback or recovery mechanisms.
+
+---
+
+MODULE 5: WINDOWS MAINTENANCE
+
+Implement:
+
+- Windows Update status
+- Update history
+- Pending updates
+- Failed update diagnosis
+- Update scan
+- Update installation
+- Update removal where supported
+- Update pause/resume controls
+
+System repair:
+
+- SFC
+- DISM
+- CHKDSK
+- Windows image health
+- Component store diagnostics
+- Windows Update troubleshooting
+- Print spooler repair
+- Windows Search repair
+- Audio troubleshooting
+- Network repair
+
+Every repair operation must:
+
+- Explain its purpose
+- Show the operation being performed
+- Display progress where possible
+- Capture output
+- Capture errors
+- Return a clear result
+- Verify the result when possible
+
+---
+
+MODULE 6: SECURITY CENTER
+
+Implement a security assessment dashboard.
+
+Monitor:
+
+- Microsoft Defender
+- Real-time protection
+- Firewall profiles
+- BitLocker
+- TPM
+- Secure Boot
+- UAC
+- Windows security policies
+- Local administrator accounts
+- Password policies
+- Remote Desktop
+- SMB configuration
+- Security event logs
+
+Implement security auditing and remediation.
+
+Create security profiles:
+
+- Basic Workstation
+- Corporate Workstation
+- Administrator Workstation
+- Windows Server Baseline
+- Custom
+
+Before applying security changes:
+
+1. Display the affected configuration.
+2. Explain the risk.
+3. Preview the change.
+4. Require appropriate confirmation.
+5. Record the action.
+6. Verify the result.
+
+Never disable security controls without an explicit user-approved action.
+
+---
+
+MODULE 7: LOCAL USER MANAGEMENT
+
+Implement:
+
+- Local account inventory
+- User creation
+- User modification
+- User enable/disable
+- Password reset
+- Group membership
+- Local group inventory
+- Administrator auditing
+- Account expiration
+- Password policies
+- User profile inventory
+
+Implement CSV-based bulk operations.
+
+Preview bulk changes before execution.
+
+Protect against accidental removal of critical administrators.
+
+---
+
+MODULE 8: ACTIVE DIRECTORY
+
+Detect domain membership and available RSAT modules.
+
+Implement:
+
+- Domain information
+- Domain controller discovery
+- Domain connectivity
+- User search
+- User creation
+- User modification
+- Disable/enable
+- Unlock
+- Password reset
+- Group membership
+- Computer objects
+- OU browsing
+- Account expiration
+- Last logon information
+- Bulk operations
+- CSV export
+
+Group Policy:
+
+- GPO inventory
+- Applied policies
+- GPResult
+- Policy refresh
+- GPO diagnostics
+- Backup and restore where supported
+
+Domain diagnostics:
+
+- DNS
+- Secure channel
+- Time synchronization
+- Kerberos
+- Domain controller connectivity
+- Replication health where available
+
+If Active Directory tools are unavailable, display prerequisite information and instructions.
+
+Never assume that the local computer is domain joined.
+
+---
+
+MODULE 9: STORAGE MANAGEMENT
+
+Implement:
+
+- Physical disk inventory
+- Logical volumes
+- Partition information
+- Storage capacity
+- Disk health
+- SMART information where supported
+- BitLocker status
+- Folder size analysis
+- Large file discovery
+- Duplicate file detection
+- Temporary file analysis
+- Cleanup recommendations
+
+Before deleting files:
+
+- Show the affected paths.
+- Show the estimated space to recover.
+- Exclude critical system directories.
+- Require confirmation.
+- Log the operation.
+
+Do not implement unsafe recursive deletion.
+
+---
+
+MODULE 10: EVENT LOG ANALYZER
+
+Implement:
+
+- Application logs
+- System logs
+- Security logs
+- PowerShell logs
+- Defender logs
+- Custom logs
+
+Filters:
+
+- Severity
+- Event ID
+- Provider
+- Date
+- Keyword
+
+Provide:
+
+- Event details
+- XML view
+- Export
+- Error analysis
+- Common Event ID explanations
+- Diagnostic recommendations
+
+---
+
+MODULE 11: POWERSHELL AUTOMATION CENTER
+
+Create a professional PowerShell workspace.
+
+Implement:
+
+- Script editor
+- Syntax highlighting
+- Script execution
+- Script parameters
+- Output console
+- Error console
+- Execution history
+- Script library
+- Templates
+- Import/export
+- Script categories
+- Execution duration
+- Exit code
+- Cancellation
+- Administrator execution where required
+
+Script categories:
+
+- Networking
+- System administration
+- Security
+- Active Directory
+- Troubleshooting
+- Windows repair
+- Servers
+- Microsoft 365
+- Automation
+
+Create reusable script templates.
+
+Do not silently execute imported scripts.
+
+Display the script content and explain elevated permissions before execution when necessary.
+
+---
+
+MODULE 12: REMOTE ADMINISTRATION
+
+Implement authorized remote management.
+
+Support:
+
+- Hostname
+- IP address
+- Domain computer
+- Saved endpoints
+- Endpoint groups
+
+Connection technologies:
+
+- PowerShell Remoting
+- WinRM
+- CIM
+- Appropriate Windows management APIs
+
+Remote features:
+
+- System information
+- Services
+- Processes
+- Event logs
+- Network diagnostics
+- User administration
+- Update status
+- PowerShell execution
+
+Implement connection diagnostics.
+
+Never store plaintext passwords.
+
+Use Windows authentication or secure credential storage.
+
+Do not bypass authentication.
+
+Do not implement stealth functionality.
+
+---
+
+MODULE 13: TROUBLESHOOTING ENGINE
+
+Create a structured diagnostic framework.
+
+Troubleshooting scenarios:
+
+- Internet connectivity
+- DNS failure
+- Slow computer
+- High CPU
+- High RAM
+- Low disk space
+- Windows Update failures
+- Printer problems
+- Audio problems
+- Application crashes
+- Blue screens
+- Login problems
+- Domain connectivity
+- Service failures
+
+For each diagnostic:
+
+1. Collect evidence.
+2. Run relevant checks.
+3. Identify findings.
+4. Assign severity.
+5. Determine possible root causes.
+6. Recommend remediation.
+7. Offer remediation controls.
+8. Verify the outcome.
+9. Generate a report.
+
+Separate diagnostic logic from remediation logic.
+
+Never automatically apply high-risk repairs.
+
+---
+
+MODULE 14: REPORTING
+
+Create reports in:
+
+- HTML
+- PDF
+- CSV
+- JSON
+
+Reports:
+
+- Hardware inventory
+- Software inventory
+- System health
+- Network diagnostics
+- Security assessment
+- Windows maintenance
+- Active Directory
+- Event log analysis
+- Troubleshooting
+- Remote endpoint inventory
+
+Include:
+
+- Computer name
+- Timestamp
+- Technician
+- Environment
+- Findings
+- Severity
+- Recommended actions
+- Actions performed
+- Verification results
+
+Use professional report templates.
+
+---
+
+MODULE 15: ACTION SAFETY ENGINE
+
+Implement a centralized action safety framework.
+
+Classify actions:
+
+Level 0:
+Read-only.
+
+Level 1:
+Low-risk diagnostics.
+
+Level 2:
+Reversible administrative changes.
+
+Level 3:
+High-risk changes.
+
+Level 4:
+Potentially destructive operations.
+
+For each action:
+
+- Define its risk level.
+- Define required permissions.
+- Define confirmation requirements.
+- Define rollback capability.
+- Define logging requirements.
+- Define validation requirements.
+
+Require confirmation for:
+
+- Network configuration changes
+- Firewall modifications
+- Security configuration changes
+- Service changes
+- Registry changes
+- User deletion
+- Bulk operations
+- File deletion
+- Disk operations
+- System shutdown
+- Remote operations with significant impact
+
+Create an audit trail.
+
+Never execute destructive actions silently.
+
+Never hide executed commands from the user.
+
+---
+
+MODULE 16: AI-ASSISTED TROUBLESHOOTING
+
+Design this module to support future AI integration.
+
+The AI must:
+
+- Analyze collected diagnostic evidence.
+- Explain technical errors in plain language.
+- Suggest possible root causes.
+- Recommend safe remediation.
+- Explain the impact of proposed changes.
+
+The AI must not:
+
+- Automatically execute dangerous commands.
+- Invent diagnostic findings.
+- Pretend a repair succeeded.
+- Expose sensitive information unnecessarily.
+
+The AI should work from actual diagnostic results rather than fabricated system information.
+
+Allow AI integration to be optional.
+
+---
+
+TESTING REQUIREMENTS
+
+Create unit tests for:
+
+- Core services
+- Diagnostic logic
+- Data models
+- Safety engine
+- Permission checks
+- Risk classification
+
+Create integration tests for:
+
+- PowerShell execution
+- System information
+- Network diagnostics
+- Service enumeration
+- Database operations
+
+Create PowerShell Pester tests where appropriate.
+
+Create mock interfaces so tests do not require destructive system operations.
+
+Do not execute dangerous operations on the development machine during automated tests.
+
+Test both administrator and non-administrator scenarios where practical.
+
+---
+
+DEVELOPMENT WORKFLOW
+
+Follow this workflow continuously:
+
+1. Inspect the repository.
+2. Establish project architecture.
+3. Create the application skeleton.
+4. Implement a module.
+5. Write tests.
+6. Run tests.
+7. Run static analysis.
+8. Build the application.
+9. Fix errors.
+10. Review security.
+11. Review UI/UX.
+12. Update documentation.
+13. Update PROJECT_STATUS.md.
+14. Move to the next module.
+
+Do not implement every module as placeholder screens.
+
+Do not create buttons without functionality.
+
+Do not use fake system information in the production application.
+
+Mock data is allowed only in development previews and tests, and must be clearly identified.
+
+---
+
+QUALITY REQUIREMENTS
+
+The application must:
+
+- Compile successfully.
+- Have a maintainable architecture.
+- Use consistent UI design.
+- Handle errors gracefully.
+- Avoid freezing.
+- Support cancellation.
+- Log meaningful information.
+- Avoid unnecessary privilege escalation.
+- Be secure by design.
+- Have useful documentation.
+- Have automated tests.
+- Support Windows 10 and Windows 11 where technically compatible.
+- Support Windows Server environments where relevant.
+- Detect unsupported operating systems and features.
+- Be usable by both junior technicians and senior administrators.
+
+---
+
+INITIAL EXECUTION
+
+Begin immediately.
+
+First:
+
+1. Research the current recommended Windows desktop architecture.
+2. Inspect the development environment.
+3. Check installed .NET SDKs.
+4. Check available PowerShell versions.
+5. Check Git.
+6. Determine whether Windows-specific development and testing can be performed in the current environment.
+7. Create the repository structure.
+8. Create the solution.
+9. Create the application.
+10. Create the core architecture.
+11. Implement the application shell and dashboard.
+12. Implement the first fully functional administration modules.
+13. Test.
+14. Build.
+15. Fix errors.
+16. Continue autonomously.
+
+Prioritize working software over unnecessary documentation or planning.
+
+Maintain a continuously updated project status.
+
+Do not stop after generating a plan.
+
+Do not stop after generating UI.
+
+Continue implementing, testing, and improving the project until you have exhausted the available development capabilities.
+
+If a task requires Windows execution and the current development environment is not Windows, develop the Windows-specific components using appropriate abstractions and mocks, document the testing limitation, and ensure the application can be built and tested on a Windows machine.
+
+Your objective is to deliver a real, installable, production-quality Windows administration toolkit, not merely a demonstration.

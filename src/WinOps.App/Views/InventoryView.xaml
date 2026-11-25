@@ -1,0 +1,121 @@
+<Page x:Class="WinOps.App.Views.InventoryView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+      Background="{DynamicResource AppBackground}">
+    <Page.Resources>
+        <sys:Boolean x:Key="TrueValue">True</sys:Boolean>
+        <sys:Boolean x:Key="FalseValue">False</sys:Boolean>
+    </Page.Resources>
+    <Grid Margin="26,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="Refresh inventory" Command="{Binding RefreshCommand}" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Export software" Command="{Binding ExportCommand}" Style="{StaticResource SecondaryButton}"/>
+        </StackPanel>
+        <Border Grid.Row="1" Style="{StaticResource Card}">
+            <TabControl>
+                <TabItem Header="Software">
+                    <DataGrid ItemsSource="{Binding Software}" Height="430">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="280"/>
+                            <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="130"/>
+                            <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="240"/>
+                            <DataGridTextColumn Header="Installed" Binding="{Binding InstallDate}" Width="120"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+                <TabItem Header="Startup">
+                    <DataGrid ItemsSource="{Binding Startup}" Height="430">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="260"/>
+                            <DataGridTextColumn Header="Command" Binding="{Binding Command}" Width="420"/>
+                            <DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="240"/>
+                            <DataGridTextColumn Header="User" Binding="{Binding User}" Width="130"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+                <TabItem Header="Scheduled tasks">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Button Content="Enable" Command="{Binding SetTaskStateCommand}" CommandParameter="{StaticResource TrueValue}" Style="{StaticResource BaseButton}"/>
+                            <Button Content="Disable" Command="{Binding SetTaskStateCommand}" CommandParameter="{StaticResource FalseValue}" Style="{StaticResource DangerButton}"/>
+                            <Button Content="Run now" Command="{Binding RunTaskCommand}" Style="{StaticResource SecondaryButton}"/>
+                        </StackPanel>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding Tasks}" SelectedItem="{Binding SelectedTask}" Height="390">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="220"/>
+                                <DataGridTextColumn Header="Path" Binding="{Binding Path}" Width="300"/>
+                                <DataGridTextColumn Header="State" Binding="{Binding State}" Width="100"/>
+                                <DataGridTextColumn Header="Triggers" Binding="{Binding Triggers}" Width="250"/>
+                                <DataGridTextColumn Header="Last result" Binding="{Binding LastResult}" Width="100"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Devices">
+                    <DataGrid ItemsSource="{Binding Devices}" Height="430">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="280"/>
+                            <DataGridTextColumn Header="Class" Binding="{Binding Class}" Width="150"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="130"/>
+                            <DataGridTextColumn Header="Manufacturer" Binding="{Binding Manufacturer}" Width="220"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+                <TabItem Header="Drivers">
+                    <DataGrid ItemsSource="{Binding Drivers}" Height="430">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="280"/>
+                            <DataGridTextColumn Header="Provider" Binding="{Binding Provider}" Width="220"/>
+                            <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="140"/>
+                            <DataGridTextColumn Header="Class" Binding="{Binding DeviceClass}" Width="150"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+                <TabItem Header="Environment">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <TextBlock Text="Scope" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <ComboBox ItemsSource="{Binding Scopes}" SelectedItem="{Binding EnvironmentScope}" Width="130"/>
+                        </StackPanel>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding Variables}" Height="390">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="260"/>
+                                <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="560"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Restore points">
+                    <DataGrid ItemsSource="{Binding RestorePoints}" Height="430">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Created" Binding="{Binding CreationTime}" Width="220"/>
+                            <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="420"/>
+                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="140"/>
+                            <DataGridTextColumn Header="Sequence" Binding="{Binding SequenceNumber}" Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+            </TabControl>
+        </Border>
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}" CornerRadius="8" Padding="12,8">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource MutedTextBrush}"/>
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource ErrorBrush}" Margin="14,0,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

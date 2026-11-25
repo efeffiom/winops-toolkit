@@ -1,0 +1,83 @@
+<Page x:Class="WinOps.App.Views.SettingsView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{DynamicResource AppBackground}">
+    <Grid Margin="26,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="Save settings" Command="{Binding SaveCommand}" Style="{StaticResource BaseButton}"/>
+            <Button Content="Refresh audit" Command="{Binding RefreshAuditCommand}" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Export audit CSV" Command="{Binding ExportAuditCommand}" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Open data folder" Command="{Binding OpenDataFolderCommand}" Style="{StaticResource SecondaryButton}"/>
+        </StackPanel>
+        <Border Grid.Row="1" Style="{StaticResource Card}">
+            <TabControl>
+                <TabItem Header="Application settings">
+                    <Grid Margin="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="220"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Technician name" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Grid.Column="1" Text="{Binding TechnicianName}"/>
+                        <TextBlock Grid.Row="1" Text="Environment label" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Environment}"/>
+                        <TextBlock Grid.Row="2" Text="Dashboard refresh (seconds)" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding RefreshIntervalSeconds}" Width="100" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Row="3" Text="Theme" Style="{StaticResource FieldLabel}"/>
+                        <ComboBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding Themes}" SelectedItem="{Binding SelectedTheme}" Width="150" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Row="4" Text="Version" Style="{StaticResource FieldLabel}"/>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding VersionText}"/>
+                        <TextBlock Grid.Row="5" Text="Current user" Style="{StaticResource FieldLabel}"/>
+                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding UserName}"/>
+                        <TextBlock Grid.Row="6" Text="Privilege" Style="{StaticResource FieldLabel}"/>
+                        <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding PrivilegeLabel}"/>
+                        <TextBlock Grid.Row="7" Text="Data directory" Style="{StaticResource FieldLabel}"/>
+                        <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding DataDirectory}" TextWrapping="Wrap"/>
+                        <TextBlock Grid.Row="8" Text="Database" Style="{StaticResource FieldLabel}"/>
+                        <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding DatabasePath}" TextWrapping="Wrap"/>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Audit trail">
+                    <DataGrid ItemsSource="{Binding AuditEntries}" Height="440">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Time (UTC)" Binding="{Binding TimestampUtc}" Width="170"/>
+                            <DataGridTextColumn Header="Action" Binding="{Binding ActionId}" Width="170"/>
+                            <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="200"/>
+                            <DataGridTextColumn Header="Risk" Binding="{Binding RiskLevel}" Width="80"/>
+                            <DataGridTextColumn Header="Success" Binding="{Binding Success}" Width="80"/>
+                            <DataGridTextColumn Header="Cancelled" Binding="{Binding WasCancelled}" Width="90"/>
+                            <DataGridTextColumn Header="Declined" Binding="{Binding ConfirmationDeclined}" Width="90"/>
+                            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="420"/>
+                            <DataGridTextColumn Header="Command" Binding="{Binding ExecutedCommand}" Width="360"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+                <TabItem Header="Detected capabilities">
+                    <ListBox ItemsSource="{Binding Capabilities}" Margin="16"/>
+                </TabItem>
+            </TabControl>
+        </Border>
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}" CornerRadius="8" Padding="12,8">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource MutedTextBrush}"/>
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource ErrorBrush}" Margin="14,0,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

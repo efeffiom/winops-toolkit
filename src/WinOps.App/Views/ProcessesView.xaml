@@ -1,0 +1,58 @@
+<Page x:Class="WinOps.App.Views.ProcessesView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{DynamicResource AppBackground}">
+    <Grid Margin="26,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="Refresh" Command="{Binding RefreshCommand}" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Stop process" Command="{Binding StopCommand}" Style="{StaticResource DangerButton}"/>
+            <Button Content="Show tree" Command="{Binding ShowTreeCommand}" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Export CSV" Command="{Binding ExportCommand}" Style="{StaticResource SecondaryButton}"/>
+            <TextBox Text="{Binding Filter, UpdateSourceTrigger=PropertyChanged}" Width="220"/>
+            <CheckBox Content="Force" IsChecked="{Binding ForceStop}" VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}"/>
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="330"/>
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource Card}" Margin="0,0,10,0">
+                <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="PID" Binding="{Binding Id}" Width="70"/>
+                        <DataGridTextColumn Header="Process" Binding="{Binding Name}" Width="190"/>
+                        <DataGridTextColumn Header="CPU seconds" Binding="{Binding CpuSeconds, StringFormat='{}{0:0.##}'}" Width="105"/>
+                        <DataGridTextColumn Header="Memory (MB)" Binding="{Binding WorkingSetBytes, Converter={StaticResource BytesToMbConverter}}" Width="110"/>
+                        <DataGridTextColumn Header="User" Binding="{Binding User}" Width="150"/>
+                        <DataGridTextColumn Header="Responding" Binding="{Binding Responding}" Width="100"/>
+                        <DataGridTextColumn Header="Path" Binding="{Binding ExecutablePath}" Width="360"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+            <Border Grid.Column="1" Style="{StaticResource Card}" Margin="10,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="Selected process" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock Text="{Binding Selected.Name, StringFormat='Name: {0}'}"/>
+                    <TextBlock Text="{Binding Selected.Id, StringFormat='PID: {0}'}"/>
+                    <TextBlock Text="{Binding Selected.ParentId, StringFormat='Parent PID: {0}'}"/>
+                    <TextBlock Text="{Binding Selected.StartTime, StringFormat='Started: {0}'}"/>
+                    <TextBlock Text="Command line" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding Selected.CommandLine, Mode=OneWay}" TextWrapping="Wrap" AcceptsReturn="True" Height="110" IsReadOnly="True"/>
+                    <TextBlock Text="Process tree" Style="{StaticResource FieldLabel}"/>
+                    <ListBox ItemsSource="{Binding Tree}" Height="260" DisplayMemberPath="Name"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}" CornerRadius="8" Padding="12,8">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource MutedTextBrush}"/>
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource ErrorBrush}" Margin="14,0,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/WinOps.App/WinOps.App.csproj" />
+    <Project Path="src/WinOps.Core/WinOps.Core.csproj" />
+    <Project Path="src/WinOps.Persistence/WinOps.Persistence.csproj" />
+    <Project Path="src/WinOps.PowerShell/WinOps.PowerShell.csproj" />
+    <Project Path="src/WinOps.Services/WinOps.Services.csproj" />
+    <Project Path="src/WinOps.Windows/WinOps.Windows.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/WinOps.Tests/WinOps.Tests.csproj" />
+  </Folder>
+</Solution>

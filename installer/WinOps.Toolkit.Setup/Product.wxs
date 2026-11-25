@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <?define ProductName = "WinOps Toolkit" ?>
+  <?define Manufacturer = "WinOps" ?>
+  <?define UpgradeCodeGuid = "{8B4E7A2F-3C19-4D6E-9A5B-2F0D1C7E6A21}" ?>
+  <?define StartMenuComponentGuid = "{5C0B1E9A-7A2D-4F81-B6C4-9D3E2A1F5B70}" ?>
+  <?define DesktopComponentGuid = "{A31D6F42-8B55-4E2A-9C10-7F6E3D5A8B94}" ?>
+
+  <Package Name="$(var.ProductName)"
+           Language="1033"
+           Version="$(var.ProductVersion)"
+           Manufacturer="$(var.Manufacturer)"
+           UpgradeCode="$(var.UpgradeCodeGuid)"
+           Scope="perMachine">
+
+    <MajorUpgrade Schedule="afterInstallInitialize"
+                  DowngradeErrorMessage="A newer version of [ProductName] is already installed. Setup will now exit." />
+
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+    <Icon Id="WinOpsIcon" SourceFile="$(var.IconPath)" />
+
+    <Property Id="ARPCOMMENTS" Value="Native Windows administration and diagnostics toolkit." />
+    <Property Id="ARPCONTACT" Value="WinOps Toolkit contributors" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/winops/toolkit" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/winops/toolkit" />
+    <Property Id="ARPPRODUCTICON" Value="WinOpsIcon" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <SetProperty Id="ARPINSTALLLOCATION" Value="[INSTALLFOLDER]" After="CostFinalize" />
+
+    <Launch Condition="Installed OR VersionNT64" Message="[ProductName] requires a 64-bit edition of Windows." />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="ManufacturerFolder" Name="$(var.Manufacturer)">
+        <Directory Id="INSTALLFOLDER" Name="$(var.ProductName)" />
+      </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="$(var.ProductName)" />
+    </StandardDirectory>
+    <StandardDirectory Id="DesktopFolder" />
+
+    <Component Id="StartMenuShortcuts" Guid="$(var.StartMenuComponentGuid)" Directory="ApplicationProgramsFolder">
+      <Shortcut Id="StartMenuShortcut"
+                Name="$(var.ProductName)"
+                Description="Native Windows administration and diagnostics"
+                Target="[INSTALLFOLDER]WinOps.Toolkit.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="WinOpsIcon" />
+      <Shortcut Id="StartMenuUninstallShortcut"
+                Name="Uninstall $(var.ProductName)"
+                Description="Remove $(var.ProductName) from this computer"
+                Target="[System64Folder]msiexec.exe"
+                Arguments="/x [ProductCode]"
+                Icon="WinOpsIcon" />
+      <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
+      <RegistryValue Root="HKCU" Key="Software\WinOps\WinOps Toolkit" Name="StartMenuShortcuts" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+
+    <Component Id="DesktopShortcut" Guid="$(var.DesktopComponentGuid)" Directory="DesktopFolder">
+      <Shortcut Id="DesktopShortcutIcon"
+                Name="$(var.ProductName)"
+                Description="Native Windows administration and diagnostics"
+                Target="[INSTALLFOLDER]WinOps.Toolkit.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="WinOpsIcon" />
+      <RegistryValue Root="HKCU" Key="Software\WinOps\WinOps Toolkit" Name="DesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+
+    <Feature Id="MainInstall" Title="$(var.ProductName)" Description="Complete application installation." Level="1" Display="expand" ConfigurableDirectory="INSTALLFOLDER">
+      <ComponentGroupRef Id="PublishedFiles" />
+      <ComponentRef Id="StartMenuShortcuts" />
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+
+    <ui:WixUI Id="WixUI_Minimal" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+  </Package>
+</Wix>

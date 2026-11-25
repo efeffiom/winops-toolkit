@@ -1,0 +1,25 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <PropertyGroup>
+    <OutputName>WinOpsToolkitSetup</OutputName>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <PublishDir Condition="'$(PublishDir)' == ''">$(MSBuildProjectDirectory)\..\..\artifacts\publish\win-x64\</PublishDir>
+    <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0</ProductVersion>
+    <IconPath Condition="'$(IconPath)' == ''">$(MSBuildProjectDirectory)\WinOps.ico</IconPath>
+    <HarvestDirectorySuppressSpecificWarnings>5151</HarvestDirectorySuppressSpecificWarnings>
+    <SuppressSpecificWarnings>1076</SuppressSpecificWarnings>
+    <DefineConstants>PublishDir=$(PublishDir);ProductVersion=$(ProductVersion);IconPath=$(IconPath)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Heat" Version="5.0.2" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <HarvestDirectory Include="$(PublishDir)">
+      <ComponentGroupName>PublishedFiles</ComponentGroupName>
+      <DirectoryRefId>INSTALLFOLDER</DirectoryRefId>
+      <PreprocessorVariable>var.PublishDir</PreprocessorVariable>
+      <SuppressRootDirectory>true</SuppressRootDirectory>
+      <AutogenerateComponentGuids>true</AutogenerateComponentGuids>
+    </HarvestDirectory>
+  </ItemGroup>
+</Project>

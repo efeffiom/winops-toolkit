@@ -1,0 +1,59 @@
+<Page x:Class="WinOps.App.Views.ReportsView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{DynamicResource AppBackground}">
+    <Grid Margin="26,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="Refresh runs" Command="{Binding RefreshCommand}" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Load selected report" Command="{Binding LoadSelectedCommand}" Style="{StaticResource BaseButton}"/>
+            <Button Content="Export JSON" Command="{Binding ExportCommand}" CommandParameter="json" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Export HTML" Command="{Binding ExportCommand}" CommandParameter="html" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Export CSV" Command="{Binding ExportCommand}" CommandParameter="csv" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Export PDF" Command="{Binding ExportCommand}" CommandParameter="pdf" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="Open report folder" Command="{Binding OpenDirectoryCommand}" Style="{StaticResource SecondaryButton}"/>
+        </StackPanel>
+        <Border Grid.Row="1" Style="{StaticResource Card}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="200"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Saved diagnostic runs" Style="{StaticResource SectionTitle}"/>
+                <DataGrid Grid.Row="1" ItemsSource="{Binding Runs}" SelectedValuePath="Id" SelectedValue="{Binding SelectedRunId}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="70"/>
+                        <DataGridTextColumn Header="Generated" Binding="{Binding GeneratedAtUtc}" Width="180"/>
+                        <DataGridTextColumn Header="Scenario" Binding="{Binding ScenarioTitle}" Width="250"/>
+                        <DataGridTextColumn Header="Computer" Binding="{Binding ComputerName}" Width="180"/>
+                        <DataGridTextColumn Header="Technician" Binding="{Binding Technician}" Width="160"/>
+                        <DataGridTextColumn Header="Environment" Binding="{Binding Environment}" Width="180"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <TextBlock Grid.Row="2" Text="Report findings" Style="{StaticResource SectionTitle}" Margin="0,12,0,0"/>
+                <DataGrid Grid.Row="3" ItemsSource="{Binding Report.Findings}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Check" Binding="{Binding Title}" Width="240"/>
+                        <DataGridTextColumn Header="Severity" Binding="{Binding Severity}" Width="100"/>
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="110"/>
+                        <DataGridTextColumn Header="Detail" Binding="{Binding Detail}" Width="420"/>
+                        <DataGridTextColumn Header="Verification" Binding="{Binding Verification}" Width="240"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}" CornerRadius="8" Padding="12,8">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource MutedTextBrush}"/>
+                <TextBlock Text="{Binding ReportDirectory, StringFormat='Reports: {0}'}" Foreground="{DynamicResource MutedTextBrush}" Margin="14,0,0,0"/>
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource ErrorBrush}" Margin="14,0,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>
