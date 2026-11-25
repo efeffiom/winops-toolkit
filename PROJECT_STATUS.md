@@ -11,7 +11,7 @@ Build a real, installable, production-quality native Windows administration and 
 - Windows 11 Pro (x64); current shell/session is **not elevated**.
 - .NET SDK 10.0.404 installed; use `& 'C:\Program Files\dotnet\dotnet.exe'` because `dotnet` is not reliably on the session PATH.
 - PowerShell 7 and Windows PowerShell 5.1 are both present. Pester tests run under PowerShell 7.
-- Repository initialized with Git; all work remains **uncommitted** (no commit was requested).
+- Local Git repository initialized with commit `5fa555e`. A private GitHub repository exists at `https://github.com/efeffiom/winops-toolkit`; no remote has been configured and no push has been performed.
 - LiveCharts2 2.2.0 is retained for WPF charting. NuGet emits NU1701 warnings for legacy transitive WPF/SkiaSharp packages; runtime smoke testing is used to confirm compatibility.
 
 ## Implemented
@@ -90,7 +90,7 @@ Build a real, installable, production-quality native Windows administration and 
 - NU1701 compatibility warnings remain for `OpenTK 3.3.1`, `OpenTK.GLWpfControl 3.3.0` and `SkiaSharp.Views.WPF 3.119.2`. Runtime startup is verified; full chart interaction should be exercised during manual VM validation.
 - PowerShell 7 is recommended. Windows PowerShell 5.1 is used only as a fallback and does not support every modern cmdlet used by built-in templates.
 - Running the WPF app requires an interactive desktop session.
-- All work is uncommitted. No commit was made because the user did not request one.
+- A local commit exists (`5fa555e`). The GitHub repository is private, but no remote has been configured and no push has been performed.
 
 ## Next validation gate
 
