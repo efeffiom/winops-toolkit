@@ -11,7 +11,7 @@ Build a real, installable, production-quality native Windows administration and 
 - Windows 11 Pro (x64); current shell/session is **not elevated**.
 - .NET SDK 10.0.404 installed; use `& 'C:\Program Files\dotnet\dotnet.exe'` because `dotnet` is not reliably on the session PATH.
 - PowerShell 7 and Windows PowerShell 5.1 are both present. Pester tests run under PowerShell 7.
-- Local Git repository initialized with commit `5fa555e`. A private GitHub repository exists at `https://github.com/efeffiom/winops-toolkit`; no remote has been configured and no push has been performed.
+- Local Git repository initialized. The private GitHub repository is `https://github.com/efeffiom/winops-toolkit`; branch `main` tracks `origin/main` and commits `5fa555e` and `2b22f0c` have been pushed.
 - LiveCharts2 2.2.0 is retained for WPF charting. NuGet emits NU1701 warnings for legacy transitive WPF/SkiaSharp packages; runtime smoke testing is used to confirm compatibility.
 
 ## Implemented
@@ -59,6 +59,7 @@ Build a real, installable, production-quality native Windows administration and 
 - `tools/Build/Test-Installer.ps1`: Windows Installer COM validator for product identity, version, upgrade code, `ALLUSERS`, shortcuts, payload count, main executable, upgrade rows, launch condition and media.
 - `tools/Build/Smoke-Test.ps1`: real WPF executable launch/crash/log verification.
 - `tools/Build/New-WinOpsIcon.ps1`: generated installer icon.
+- `tools/Build/Sign-Installer.ps1`: locates `signtool.exe`, applies a SHA256 Authenticode signature with RFC3161 timestamping, optionally signs a copy, and verifies the result.
 
 ### Documentation
 
@@ -68,6 +69,7 @@ Build a real, installable, production-quality native Windows administration and 
 - `docs/SafetyModel.md`
 - `docs/Operations.md`
 - `docs/Testing.md`
+- `docs/ReleaseValidation.md`
 - This `PROJECT_STATUS.md`
 
 ## Verification results
@@ -80,6 +82,7 @@ Build a real, installable, production-quality native Windows administration and 
 - Desktop smoke test: **passed** twice, including after the final scripted publish. The published executable stayed running and logged a clean `started` event with no unhandled exceptions.
 - End-to-end `tools\Build\Build-Release.ps1 -Version 1.0.0`: **completed successfully**. It built the solution, ran xUnit (20/20) and Pester (3/3), published the self-contained app, built the MSI with 0 warnings/0 errors, copied it to `artifacts\installer\WinOpsToolkitSetup-1.0.0-x64.msi` and validated it.
 - The WPF `Page`-in-`ContentControl` startup crash was found by the smoke test, fixed by hosting pages in a `Frame`, and re-verified with a clean smoke test.
+- `tools\Build\Sign-Installer.ps1`: PowerShell parser syntax check passed and the missing-certificate error path was exercised; actual signing was not performed because no code-signing certificate is available in this session.
 
 ## Remaining work / limitations
 
@@ -90,10 +93,10 @@ Build a real, installable, production-quality native Windows administration and 
 - NU1701 compatibility warnings remain for `OpenTK 3.3.1`, `OpenTK.GLWpfControl 3.3.0` and `SkiaSharp.Views.WPF 3.119.2`. Runtime startup is verified; full chart interaction should be exercised during manual VM validation.
 - PowerShell 7 is recommended. Windows PowerShell 5.1 is used only as a fallback and does not support every modern cmdlet used by built-in templates.
 - Running the WPF app requires an interactive desktop session.
-- A local commit exists (`5fa555e`). The GitHub repository is private, but no remote has been configured and no push has been performed.
+- The private GitHub repository contains the pushed `main` branch; the release gates below still require an elevated clean VM and a signing certificate.
 
 ## Next validation gate
 
-1. On an elevated clean VM, install `artifacts\installer\WinOpsToolkitSetup-1.0.0-x64.msi`, run the app as administrator, exercise all guarded actions, upgrade to a newer version, then uninstall.
-2. Sign the MSI with a trusted code-signing certificate and verify the Authenticode signature.
-3. Exercise the LiveCharts dashboard and theme switching interactively during that VM pass.
+1. Follow `docs/ReleaseValidation.md` on an elevated clean VM: install `WinOpsToolkitSetup-1.0.0-x64.msi`, run as administrator, exercise all guarded actions, upgrade to a newer version, repair, uninstall and reinstall.
+2. Sign the MSI with `tools\Build\Sign-Installer.ps1` using a trusted code-signing certificate, then verify with `Get-AuthenticodeSignature` and `Test-Installer.ps1`.
+3. Exercise the LiveCharts dashboard, theme switching and keyboard shortcuts interactively during that VM pass and attach the evidence checklist to the release record.

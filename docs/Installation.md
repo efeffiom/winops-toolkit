@@ -121,11 +121,26 @@ powershell.exe -NoProfile -File 'tools\Build\Test-Installer.ps1' -Path 'artifact
 
 ## Signing for production
 
-The generated MSI is not code-signed. Sign it with a trusted certificate before broad distribution:
+The generated MSI is not code-signed. Sign it with a trusted certificate before broad distribution. Use the repository script, which locates `signtool.exe`, applies a SHA256 signature with an RFC3161 timestamp, and verifies the result:
 
 ```powershell
-signtool.exe sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /a "WinOpsToolkitSetup-1.0.0-x64.msi"
+powershell.exe -NoProfile -File 'tools\Build\Sign-Installer.ps1' -Path 'artifacts\installer\WinOpsToolkitSetup-1.0.0-x64.msi' -Thumbprint '<CERT-THUMBPRINT>' -OutputPath 'artifacts\installer\WinOpsToolkitSetup-1.0.0-x64-signed.msi'
 ```
+
+From a PFX file:
+
+```powershell
+$secure = Read-Host -AsSecureString 'PFX password'
+powershell.exe -NoProfile -File 'tools\Build\Sign-Installer.ps1' -Path 'artifacts\installer\WinOpsToolkitSetup-1.0.0-x64.msi' -PfxPath 'C:\Secure\winops-code-signing.pfx' -PfxPassword $secure -OutputPath 'artifacts\installer\WinOpsToolkitSetup-1.0.0-x64-signed.msi'
+```
+
+Verify with:
+
+```powershell
+Get-AuthenticodeSignature -LiteralPath 'artifacts\installer\WinOpsToolkitSetup-1.0.0-x64-signed.msi' | Format-List *
+```
+
+See `docs/ReleaseValidation.md` for the complete signing and release-validation checklist.
 
 ## Current verification status
 

@@ -76,7 +76,7 @@ The script runs all managed and PowerShell tests, publishes the self-contained a
 
 ## 6. Manual validation still required
 
-The development workstation is not elevated, so these checks must be performed in an isolated VM before production release:
+The development workstation is not elevated, so these checks must be performed in an isolated VM before production release. See `docs/ReleaseValidation.md` for the full runbook, evidence checklist and signing procedure. In summary:
 
 1. Install the MSI from an elevated prompt; verify Start menu and desktop shortcuts.
 2. Launch the app and confirm it starts with administrator privileges.
