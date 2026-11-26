@@ -4,6 +4,17 @@ This runbook covers the gates that cannot be completed in the development sessio
 
 Do **not** run these checks on a production machine. Use a disposable VM and take a checkpoint before starting.
 
+## Validation results - 2026-11-26
+
+Tester: user at the VMware Windows 11 Pro VM console; snapshot `pre-winops-validation` retained.
+
+- Phase 1 clean install of `1.0.0`: **pass** (exit 0, correct shortcuts and Apps entry, clean started log as administrator).
+- Phase 4 upgrade `1.0.0` → `1.0.1`: **pass** (exit 0); saved scripts and endpoints preserved; downgrade to `1.0.0` blocked with exit 1603 and a clear message.
+- Phase 5 repair, uninstall and reinstall of `1.0.1`: **pass** (all exit 0); user data preserved across uninstall.
+- Final interactive pass on `1.0.3` (installed on the VM with exit 0; SHA256 matched the host build): **pass**. The tester confirmed all modules populate immediately, the selected navigation item is visible, light/dark themes are legible, and PowerShell Center loads templates and executes scripts with visible output. Tester statement: "everything works".
+- Individual state-changing/high-risk operations (Phase 2) and the standard-user denial path were not separately evidenced with audit exports or post-condition screenshots in this session; those checklist rows remain open.
+- Phase 6 Authenticode signing is blocked pending a code-signing certificate.
+
 ## Prerequisites
 
 - Clean 64-bit Windows 11 Pro or Windows Server VM with desktop experience.
@@ -160,18 +171,19 @@ Accept the signed package only when `Get-AuthenticodeSignature` reports `Valid`,
 
 | Item | Evidence | Pass / Fail | Notes |
 | --- | --- | --- | --- |
-| Clean install | `install-1.0.0.log`, screenshots of shortcuts and Apps entry | | |
-| Admin operation pass | Audit export, post-condition screenshots | | |
-| Standard-user denial pass | Screenshot of denial message | | |
-| Dashboard/chart/themes | Screenshots in both themes | | |
-| Reports | JSON, CSV, HTML and PDF exports | | |
-| Upgrade | `upgrade-1.0.1.log`, Apps entry showing `1.0.1` | | |
-| Downgrade blocked | Screenshot or log message | | |
-| Repair | `repair-1.0.1.log` | | |
-| Uninstall | `uninstall-1.0.1.log`, shortcut/file absence | | |
-| Reinstall | Clean launch screenshot | | |
-| Signature | `Get-AuthenticodeSignature` output | | |
-| Post-sign MSI validation | Validator output | | |
+| Clean install | `install-1.0.0.log`, shortcuts and Apps entry verified on VM | Pass | Also main executable launched as administrator with a clean log. |
+| Admin operation pass | Audit export, post-condition screenshots | Open | Modules and guarded actions confirmed working interactively; per-action post-condition evidence not captured separately. |
+| Standard-user denial pass | Screenshot of denial message | Open | Standard-user startup was logged, but the denial path was not separately evidenced. |
+| Dashboard/chart/themes | VM UI pass on `1.0.3`, light and dark themes | Pass | Tester confirmed themes legible and selected navigation indicator visible. |
+| Reports | JSON, CSV, HTML and PDF exports | Open | Report code path is implemented and unit-tested; exports not individually collected on the VM. |
+| Upgrade | `upgrade-1.0.1.log`, Apps entry showing `1.0.1` | Pass | Settings, saved scripts and endpoints preserved. |
+| Downgrade blocked | `downgrade-block.log` | Pass | Exit 1603 with "A newer version ... is already installed". |
+| Repair | `repair-1.0.1.log` | Pass | Exit 0. |
+| Uninstall | `uninstall-1.0.1.log`, shortcut/file absence | Pass | Exit 0; user data preserved. |
+| Reinstall | `reinstall-1.0.1.log` | Pass | Exit 0; all install artifacts restored. |
+| PowerShell Center / nav / dark mode | VM UI pass on `1.0.3`, host UI Automation | Pass | Templates load, scripts execute with visible output and audit entries; three reported GUI defects fixed. |
+| Signature | `Get-AuthenticodeSignature` output | Blocked | No code-signing certificate provided. |
+| Post-sign MSI validation | Validator output | Blocked | Depends on signing gate. |
 
 ## Sign-off
 

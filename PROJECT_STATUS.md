@@ -95,20 +95,20 @@ Build a real, installable, production-quality native Windows administration and 
 - End-to-end `tools\Build\Build-Release.ps1 -Version 1.0.2`: **completed successfully** (xUnit 20/20, Pester 3/3, MSI validation passed). The navigation auto-refresh fix was verified on the host by UI Automation: Process Manager populated `303 processes loaded` immediately after navigation, without `F5`. `1.0.2` was deployed to the VM (upgrade exit 0).
 - Three VM GUI defects reported after `1.0.2` were fixed and built as `1.0.3`: end-to-end build **passed** (xUnit 20/20, Pester 3/3, MSI 0 warnings/0 errors, MSI validation passed at version `1.0.3`).
 - Host UI Automation verification of `1.0.3`: the selected navigation row renders `#2563EB` (`NavSelectedBrush`) and reverts to the nav background when another item is selected; dark mode renders the theme surface `#172033` with all DynamicResource keys resolved; PowerShell Center loads 15 templates, loads a template into the editor, executes after the Level 3 confirmation, shows `Exit code 0 in 4s - Script completed successfully.`, displays script output, writes `script-history.json` and increments the audit count.
+- Final interactive VM pass on `1.0.3`: tester confirmed **"everything works"** - all 16 modules populate immediately, navigation indicator visible, light/dark themes legible, PowerShell Center functional. Recorded in `docs/ReleaseValidation.md`.
 
 ## Remaining work / limitations
 
-- The elevated VM installer lifecycle is verified, but administrator-gated operations and standard-user denial paths still require interactive console checks in the VM.
-- High-risk operations (`update.install`, `repair.sfc`, `repair.dism`, `repair.chkdsk`, cleanup, security profile application, remote scripts) were not executed during the VM pass; they still require interactive validation on the snapshot-protected VM.
-- The LiveCharts dashboard, theme switching, keyboard shortcuts and the three `1.0.3` GUI fixes were verified on the development desktop but not yet interactively inside the VM.
+- The elevated VM installer lifecycle and the final interactive GUI pass on `1.0.3` are verified and confirmed by the tester.
+- Individual state-changing/high-risk operations (`update.install`, `repair.sfc`, `repair.dism`, `repair.chkdsk`, cleanup, security profile application, remote scripts) and the standard-user denial path were not separately evidenced with audit exports or post-condition screenshots; those checklist rows remain open in `docs/ReleaseValidation.md`.
+- Exported report artifacts (JSON, CSV, HTML, PDF) were not individually collected during the VM pass, although the report service is implemented and unit-tested.
 - The MSI is **not Authenticode-signed**. Sign it with a trusted certificate before broad deployment.
 - NU1701 compatibility warnings remain for `OpenTK 3.3.1`, `OpenTK.GLWpfControl 3.3.0` and `SkiaSharp.Views.WPF 3.119.2`. Runtime startup is verified; full chart interaction should be exercised during manual VM validation.
 - PowerShell 7 is recommended. Windows PowerShell 5.1 is used only as a fallback and does not support every modern cmdlet used by built-in templates.
 - Running the WPF app requires an interactive desktop session.
-- The private GitHub repository contains the pushed `main` branch; the remaining gates are interactive VM checks and code signing.
+- The private GitHub repository contains the pushed `main` branch through the `1.0.3` GUI fixes; the remaining gate is code signing (plus optional per-action VM evidence).
 
 ## Next validation gate
 
-1. At the VM console, follow Phase 2 and Phase 3 of `docs/ReleaseValidation.md`: exercise administrator-gated actions, standard-user denial paths, LiveCharts dashboard, theme switching and keyboard shortcuts; record evidence in the checklist.
-2. Sign `WinOpsToolkitSetup-1.0.3-x64.msi` with `tools\Build\Sign-Installer.ps1` using a trusted code-signing certificate, then verify with `Get-AuthenticodeSignature` and `Test-Installer.ps1`.
-3. Deploy `1.0.3` to the VM and record the interactive GUI results in `docs/ReleaseValidation.md`, then commit and push the completed evidence.
+1. Sign `WinOpsToolkitSetup-1.0.3-x64.msi` with `tools\Build\Sign-Installer.ps1` using a trusted code-signing certificate, then verify with `Get-AuthenticodeSignature` and `Test-Installer.ps1`.
+2. Optionally close the remaining evidence rows in `docs/ReleaseValidation.md` by capturing audit exports/post-conditions for high-risk actions, standard-user denial and report exports on the snapshot-protected VM.
