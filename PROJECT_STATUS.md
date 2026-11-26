@@ -11,7 +11,7 @@ Build a real, installable, production-quality native Windows administration and 
 - Windows 11 Pro (x64); current shell/session is **not elevated**.
 - .NET SDK 10.0.404 installed; use `& 'C:\Program Files\dotnet\dotnet.exe'` because `dotnet` is not reliably on the session PATH.
 - PowerShell 7 and Windows PowerShell 5.1 are both present. Pester tests run under PowerShell 7.
-- Local Git repository initialized. The private GitHub repository is `https://github.com/efeffiom/winops-toolkit`; branch `main` tracks `origin/main` and commits through `c6dfe35` have been pushed.
+- Local Git repository initialized. The private GitHub repository is `https://github.com/efeffiom/winops-toolkit`; branch `main` tracks `origin/main`; the `1.0.3` release and its signing evidence are pushed.
 - LiveCharts2 2.2.0 is retained for WPF charting. NuGet emits NU1701 warnings for legacy transitive WPF/SkiaSharp packages; runtime smoke testing is used to confirm compatibility.
 
 ## Implemented
