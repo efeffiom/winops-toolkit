@@ -5,6 +5,8 @@
     <SolidColorBrush x:Key="SurfaceAltBrush" Color="#EEF2F8"/>
     <SolidColorBrush x:Key="PrimaryBrush" Color="#2563EB"/>
     <SolidColorBrush x:Key="PrimaryHoverBrush" Color="#1D4ED8"/>
+    <SolidColorBrush x:Key="SecondaryHoverBrush" Color="#D7DEE9"/>
+    <SolidColorBrush x:Key="ErrorHoverBrush" Color="#B91C1C"/>
     <SolidColorBrush x:Key="AccentBrush" Color="#0EA5E9"/>
     <SolidColorBrush x:Key="TextBrush" Color="#1F2937"/>
     <SolidColorBrush x:Key="MutedTextBrush" Color="#64748B"/>
@@ -12,6 +14,11 @@
     <SolidColorBrush x:Key="NavBackgroundBrush" Color="#111827"/>
     <SolidColorBrush x:Key="NavTextBrush" Color="#E5E7EB"/>
     <SolidColorBrush x:Key="NavSelectedBrush" Color="#2563EB"/>
+    <SolidColorBrush x:Key="NavSelectedTextBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="NavSubtleTextBrush" Color="#9CA3AF"/>
+    <SolidColorBrush x:Key="NavSurfaceBrush" Color="#1F2937"/>
+    <SolidColorBrush x:Key="NavInputBackgroundBrush" Color="#374151"/>
+    <SolidColorBrush x:Key="NavInputBorderBrush" Color="#4B5563"/>
     <SolidColorBrush x:Key="SuccessBrush" Color="#16A34A"/>
     <SolidColorBrush x:Key="WarningBrush" Color="#D97706"/>
     <SolidColorBrush x:Key="ErrorBrush" Color="#DC2626"/>

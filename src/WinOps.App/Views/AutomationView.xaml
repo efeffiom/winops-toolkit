@@ -8,12 +8,18 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-            <Button Content="Refresh library" Command="{Binding RefreshCommand}" Style="{StaticResource SecondaryButton}"/>
-            <Button Content="Load template" Command="{Binding LoadTemplateCommand}" Style="{StaticResource BaseButton}"/>
-            <Button Content="Execute script" Command="{Binding ExecuteCommand}" Style="{StaticResource DangerButton}"/>
-            <Button Content="Clear editor" Command="{Binding ClearScriptCommand}" Style="{StaticResource SecondaryButton}"/>
-            <TextBlock Text="{Binding ExecutablePath, StringFormat='Runtime: {0}'}" VerticalAlignment="Center" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="14,0,0,0"/>
+        <StackPanel Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Refresh library" Command="{Binding RefreshCommand}" Style="{StaticResource SecondaryButton}"/>
+                <Button Content="Load template" Command="{Binding LoadTemplateCommand}" Style="{StaticResource BaseButton}"/>
+                <Button Content="Execute script" Command="{Binding ExecuteCommand}" Style="{StaticResource DangerButton}"/>
+                <Button Content="Cancel" Command="{Binding CancelExecutionCommand}" Style="{StaticResource SecondaryButton}"
+                        IsEnabled="{Binding IsBusy}" ToolTip="Cancel the running script"/>
+                <Button Content="Clear editor" Command="{Binding ClearScriptCommand}" Style="{StaticResource SecondaryButton}"/>
+                <TextBlock Text="{Binding ExecutablePath, StringFormat='Runtime: {0}'}" VerticalAlignment="Center" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="14,0,0,0"/>
+            </StackPanel>
+            <TextBlock Text="{Binding ExecutionSummary}" Foreground="{DynamicResource PrimaryBrush}"
+                       FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0"/>
         </StackPanel>
         <Border Grid.Row="1" Style="{StaticResource Card}">
             <Grid>
@@ -40,9 +46,11 @@
                 <Grid Grid.Column="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="1.3*"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="0.6*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="1.1*"/>
                     </Grid.RowDefinitions>
                     <DockPanel>
                         <TextBlock Text="PowerShell script" Style="{StaticResource SectionTitle}"/>
@@ -52,7 +60,11 @@
                     <TextBox Grid.Row="1" Text="{Binding Script, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"
                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="12"/>
                     <TextBlock Grid.Row="2" Text="Parameters (Name=Value lines; injected as PowerShell variables)" Style="{StaticResource FieldLabel}"/>
-                    <TextBox Grid.Row="3" Text="{Binding Parameters}" AcceptsReturn="True" Height="110" FontFamily="Consolas"/>
+                    <TextBox Grid.Row="3" Text="{Binding Parameters}" AcceptsReturn="True" FontFamily="Consolas"/>
+                    <TextBlock Grid.Row="4" Text="Last output" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Grid.Row="5" Text="{Binding LastOutput, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                             FontFamily="Consolas" FontSize="12"/>
                 </Grid>
                 <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="8" Padding="12">
                     <StackPanel>
@@ -64,6 +76,7 @@
                                 <DataGridTextColumn Header="Exit" Binding="{Binding ExitCode}" Width="70"/>
                                 <DataGridTextColumn Header="Duration" Binding="{Binding Duration}" Width="100"/>
                                 <DataGridTextColumn Header="Success" Binding="{Binding Success}" Width="80"/>
+                                <DataGridTextColumn Header="Output" Binding="{Binding Output}" Width="300"/>
                                 <DataGridTextColumn Header="Error" Binding="{Binding Error}" Width="380"/>
                             </DataGrid.Columns>
                         </DataGrid>

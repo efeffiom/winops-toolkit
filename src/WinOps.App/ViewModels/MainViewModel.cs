@@ -25,7 +25,8 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty] private string _currentTitle = "Dashboard";
     [ObservableProperty] private string _notification = string.Empty;
 
-    public ObservableCollection<NavigationItem> NavigationItems { get; } = [.. NavigationService.Items];
+    public ObservableCollection<NavigationItemViewModel> NavigationItems { get; } =
+        [.. NavigationService.Items.Select(i => new NavigationItemViewModel(i))];
     public IReadOnlyList<string> Categories { get; } = NavigationService.Items.Select(i => i.Category).Distinct().ToList();
 
     public bool IsAdministrator => _privileges.IsAdministrator();
@@ -73,8 +74,16 @@ public sealed partial class MainViewModel : ObservableObject
             : NavigationService.Items.Where(i => i.Title.Contains(value, StringComparison.OrdinalIgnoreCase)
                 || i.Category.Contains(value, StringComparison.OrdinalIgnoreCase)
                 || i.Key.Contains(value, StringComparison.OrdinalIgnoreCase));
+        var selectedKey = _navigation.CurrentKey;
         NavigationItems.Clear();
-        foreach (var item in filtered) NavigationItems.Add(item);
+        foreach (var item in filtered)
+        {
+            var entry = new NavigationItemViewModel(item)
+            {
+                IsSelected = item.Key.Equals(selectedKey, StringComparison.OrdinalIgnoreCase)
+            };
+            NavigationItems.Add(entry);
+        }
     }
 
     [RelayCommand]
@@ -109,12 +118,18 @@ public sealed partial class MainViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(CurrentPage));
         CurrentTitle = _navigation.Current?.Title ?? "WinOps Toolkit";
+        foreach (var entry in NavigationItems)
+            entry.IsSelected = entry.Key.Equals(_navigation.CurrentKey, StringComparison.OrdinalIgnoreCase);
         if (_observed is not null) _observed.PropertyChanged -= ObservedOnPropertyChanged;
         _observed = (_navigation.CurrentPage?.DataContext) as ViewModelBase;
         if (_observed is not null)
         {
             _observed.PropertyChanged += ObservedOnPropertyChanged;
             StatusMessage = _observed.StatusMessage;
+
+            // Most modules load their data from RefreshAsync. Navigating to them must
+            // trigger that refresh, otherwise the page opens empty until F5 is pressed.
+            _ = _observed.RefreshCurrentAsync();
         }
     }
 

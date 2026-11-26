@@ -83,6 +83,8 @@ public sealed partial class AutomationViewModel : ViewModelBase
     [ObservableProperty] private string _newTemplateName = string.Empty;
     [ObservableProperty] private string _newTemplateCategory = "Custom";
     [ObservableProperty] private string _newTemplateDescription = string.Empty;
+    [ObservableProperty] private string _lastOutput = string.Empty;
+    [ObservableProperty] private string _executionSummary = "No scripts executed yet. Load a template or enter a script, then execute it.";
 
     public string ExecutablePath => _powershell.ExecutablePath;
     public bool RequiresElevation => PowerShellExecutor.RequiresElevation(Script);
@@ -93,16 +95,18 @@ public sealed partial class AutomationViewModel : ViewModelBase
     partial void OnScriptChanged(string value) => OnPropertyChanged(nameof(RequiresElevation));
 
     [RelayCommand]
-    private async Task RefreshAsync()
+    private async Task RefreshAsync() => await LoadLibraryAsync(reportStatus: true);
+
+    private async Task LoadLibraryAsync(bool reportStatus)
     {
         await RunAsync(async ct =>
         {
-            var templatesTask = _powershell.GetTemplatesAsync(ct);
-            var historyTask = _powershell.GetHistoryAsync(ct);
-            await Task.WhenAll(templatesTask, historyTask);
-            Templates = new ObservableCollection<ScriptTemplateInfo>(await templatesTask);
-            History = new ObservableCollection<ScriptExecutionRecord>(await historyTask);
-            StatusMessage = $"{Templates.Count} script template(s), {History.Count} execution record(s)";
+            var templates = await _powershell.GetTemplatesAsync(ct);
+            var history = await _powershell.GetHistoryAsync(ct);
+            Templates = new ObservableCollection<ScriptTemplateInfo>(templates);
+            History = new ObservableCollection<ScriptExecutionRecord>(history);
+            if (reportStatus)
+                StatusMessage = $"{Templates.Count} script template(s), {History.Count} execution record(s)";
         }, "Loading PowerShell automation library");
     }
 
@@ -117,9 +121,42 @@ public sealed partial class AutomationViewModel : ViewModelBase
     [RelayCommand]
     private async Task ExecuteAsync()
     {
+        if (string.IsNullOrWhiteSpace(Script))
+        {
+            ExecutionSummary = "Enter a script or load a template before executing.";
+            StatusMessage = ExecutionSummary;
+            return;
+        }
+
         var result = await RunAsync(ct => _powershell.ExecuteAsync(Script, Parameters, Confirm, CreateProgress(), ct), "Executing PowerShell script");
-        if (result is not null) await NotifyAsync(result);
-        await RefreshAsync();
+        if (result is null) return;
+
+        LastOutput = string.IsNullOrWhiteSpace(result.Output)
+            ? result.Error
+            : string.IsNullOrWhiteSpace(result.Error)
+                ? result.Output
+                : result.Output + Environment.NewLine + result.Error;
+
+        if (result.WasCancelled || result.ConfirmationDeclined)
+            ExecutionSummary = "Execution cancelled. No changes were made.";
+        else
+            ExecutionSummary = $"Exit code {result.ExitCode} in {result.Duration.TotalSeconds:0.#}s - {result.Message}";
+        StatusMessage = ExecutionSummary;
+
+        if (!result.WasCancelled && !result.ConfirmationDeclined)
+            await NotifyAsync(result);
+
+        // Reload history without overwriting the result the user needs to see.
+        await LoadLibraryAsync(reportStatus: false);
+        StatusMessage = ExecutionSummary;
+    }
+
+    [RelayCommand]
+    private void CancelExecution()
+    {
+        Cancel();
+        ExecutionSummary = "Cancellation requested; waiting for the command to stop.";
+        StatusMessage = ExecutionSummary;
     }
 
     [RelayCommand]

@@ -23,12 +23,13 @@
                 <StackPanel Grid.Row="0" Margin="4,0,0,18">
                     <TextBlock Text="WINOPS" FontSize="22" FontWeight="Bold" Foreground="White"/>
                     <TextBlock Text="TOOLKIT" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
-                    <TextBlock Text="{Binding VersionText}" FontSize="11" Foreground="#9CA3AF" Margin="0,6,0,0"/>
+                    <TextBlock Text="{Binding VersionText}" FontSize="11" Foreground="{DynamicResource NavSubtleTextBrush}" Margin="0,6,0,0"/>
                 </StackPanel>
 
-                <Border Grid.Row="1" Margin="0,0,0,14" Background="#1F2937" CornerRadius="8" Padding="8">
+                <Border Grid.Row="1" Margin="0,0,0,14" Background="{DynamicResource NavSurfaceBrush}" CornerRadius="8" Padding="8">
                     <TextBox x:Name="SearchBox" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                             Background="#374151" Foreground="White" BorderBrush="#4B5563" Margin="0"
+                             Background="{DynamicResource NavInputBackgroundBrush}" Foreground="White"
+                             BorderBrush="{DynamicResource NavInputBorderBrush}" Margin="0"
                              ToolTip="Search modules" />
                 </Border>
 
@@ -49,18 +50,31 @@
                                                         <ColumnDefinition Width="28"/>
                                                         <ColumnDefinition Width="*"/>
                                                     </Grid.ColumnDefinitions>
+                                                    <Border x:Name="SelectionBar" Width="3" HorizontalAlignment="Left"
+                                                            VerticalAlignment="Stretch" Margin="-12,0,0,0"
+                                                            Background="{DynamicResource AccentBrush}" CornerRadius="2"
+                                                            Visibility="Collapsed"/>
                                                     <TextBlock Grid.Column="0" Text="{Binding Glyph}" FontFamily="Segoe MDL2 Assets" FontSize="16"
                                                                Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
                                                     <StackPanel Grid.Column="1">
-                                                        <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" Foreground="{TemplateBinding Foreground}"/>
-                                                        <TextBlock Text="{Binding Category}" FontSize="10" Foreground="#9CA3AF"/>
+                                                        <TextBlock x:Name="TitleText" Text="{Binding Title}" FontSize="13" FontWeight="SemiBold"
+                                                                   Foreground="{TemplateBinding Foreground}"/>
+                                                        <TextBlock x:Name="CategoryText" Text="{Binding Category}" FontSize="10"
+                                                                   Foreground="{DynamicResource NavSubtleTextBrush}"/>
                                                     </StackPanel>
                                                 </Grid>
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="NavBorder" Property="Background" Value="#1F2937"/>
+                                                    <Setter TargetName="NavBorder" Property="Background" Value="{DynamicResource NavSurfaceBrush}"/>
                                                 </Trigger>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter TargetName="NavBorder" Property="Background" Value="{DynamicResource NavSelectedBrush}"/>
+                                                    <Setter TargetName="SelectionBar" Property="Visibility" Value="Visible"/>
+                                                    <Setter TargetName="TitleText" Property="Foreground" Value="{DynamicResource NavSelectedTextBrush}"/>
+                                                    <Setter TargetName="CategoryText" Property="Foreground" Value="{DynamicResource NavSelectedTextBrush}"/>
+                                                    <Setter TargetName="CategoryText" Property="Opacity" Value="0.85"/>
+                                                </DataTrigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
                                     </Button.Template>
@@ -71,7 +85,7 @@
                 </ScrollViewer>
 
                 <StackPanel Grid.Row="3" Margin="4,12,0,0">
-                    <TextBlock Text="{Binding UserName}" Foreground="#D1D5DB" FontSize="12"/>
+                    <TextBlock Text="{Binding UserName}" Foreground="{DynamicResource NavTextBrush}" FontSize="12"/>
                     <TextBlock Text="{Binding PrivilegeLabel}" Foreground="{DynamicResource AccentBrush}" FontSize="11"/>
                 </StackPanel>
             </Grid>

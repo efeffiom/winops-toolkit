@@ -1,6 +1,6 @@
 # WinOps Toolkit - Project Status
 
-Last updated: 2026-11-25
+Last updated: 2026-11-26
 
 ## Objective
 
@@ -50,6 +50,10 @@ Build a real, installable, production-quality native Windows administration and 
 - Reusable converters for visibility, byte formatting and list formatting.
 - Global keyboard shortcuts: `Ctrl+K` search focus, `Ctrl+D` theme toggle, `F5` refresh, `Esc` clear search.
 - Fixed process filter refresh bug and removed `CS0108` refresh-method warnings by renaming the shell hook to `RefreshCurrentAsync()`.
+- Navigating to a module now invokes its `RefreshAsync`, so pages populate immediately instead of opening empty until `F5`.
+- Sidebar navigation has a selected-state indicator (accent bar, selected background/text) bound through `NavigationItemViewModel.IsSelected`.
+- Sidebar colors are theme resources instead of hardcoded hex values; button hover colors, ComboBox/ListBox items and DataGrid cells are theme-aware for dark mode.
+- PowerShell Center shows execution summary and full stdout/stderr in a dedicated output pane and history column, with a Cancel command, and no longer overwrites the result with a refresh status.
 
 ### Installer and tooling
 
@@ -83,20 +87,28 @@ Build a real, installable, production-quality native Windows administration and 
 - End-to-end `tools\Build\Build-Release.ps1 -Version 1.0.0`: **completed successfully**. It built the solution, ran xUnit (20/20) and Pester (3/3), published the self-contained app, built the MSI with 0 warnings/0 errors, copied it to `artifacts\installer\WinOpsToolkitSetup-1.0.0-x64.msi` and validated it.
 - The WPF `Page`-in-`ContentControl` startup crash was found by the smoke test, fixed by hosting pages in a `Frame`, and re-verified with a clean smoke test.
 - `tools\Build\Sign-Installer.ps1`: PowerShell parser syntax check passed and the missing-certificate error path was exercised; actual signing was not performed because no code-signing certificate is available in this session.
+- End-to-end `tools\Build\Build-Release.ps1 -Version 1.0.1`: **completed successfully**; xUnit 20/20, Pester 3/3, MSI build 0 warnings/0 errors, MSI validation passed, `WinOpsToolkitSetup-1.0.1-x64.msi` produced.
+- Elevated VMware Windows 11 Pro VM validation, with snapshot `pre-winops-validation`: clean install of `1.0.0` **passed** (exit 0), correct registry entry/version, install folder, both Start menu shortcuts and desktop shortcut verified; installed executable launched as administrator and logged `WinOps Toolkit 1.0.0.0 started (administrator: true)` with no errors.
+- VM upgrade `1.0.0` → `1.0.1` **passed** (exit 0), version and product code updated, fixed UpgradeCode unchanged, saved scripts/endpoints markers preserved. Downgrade attempt with `1.0.0` was **blocked** with exit 1603 and the message `A newer version of WinOps Toolkit is already installed. Setup will now exit.`
+- VM repair, uninstall and reinstall of `1.0.1` **passed** (all exit 0). After uninstall the entry, folder, executable and shortcuts were absent while user data remained; after reinstall all install artifacts were present with version `1.0.1`.
+- MSI structural validation **passed on the VM copy** of `1.0.1` with the same product identity, fixed UpgradeCode, 3 shortcuts, 451 file rows and `NotSigned` status.
+- End-to-end `tools\Build\Build-Release.ps1 -Version 1.0.2`: **completed successfully** (xUnit 20/20, Pester 3/3, MSI validation passed). The navigation auto-refresh fix was verified on the host by UI Automation: Process Manager populated `303 processes loaded` immediately after navigation, without `F5`. `1.0.2` was deployed to the VM (upgrade exit 0).
+- Three VM GUI defects reported after `1.0.2` were fixed and built as `1.0.3`: end-to-end build **passed** (xUnit 20/20, Pester 3/3, MSI 0 warnings/0 errors, MSI validation passed at version `1.0.3`).
+- Host UI Automation verification of `1.0.3`: the selected navigation row renders `#2563EB` (`NavSelectedBrush`) and reverts to the nav background when another item is selected; dark mode renders the theme surface `#172033` with all DynamicResource keys resolved; PowerShell Center loads 15 templates, loads a template into the editor, executes after the Level 3 confirmation, shows `Exit code 0 in 4s - Script completed successfully.`, displays script output, writes `script-history.json` and increments the audit count.
 
 ## Remaining work / limitations
 
-- Administrator-only and destructive actions cannot be fully verified in the current non-elevated session; elevation-denial paths are expected and were exercised where applicable.
-- A real interactive install → upgrade → uninstall cycle still requires an elevated clean VM.
-- High-risk operations (`update.install`, `repair.sfc`, `repair.dism`, `repair.chkdsk`, cleanup, security profile application, remote scripts) require isolated VM validation before release claims.
+- The elevated VM installer lifecycle is verified, but administrator-gated operations and standard-user denial paths still require interactive console checks in the VM.
+- High-risk operations (`update.install`, `repair.sfc`, `repair.dism`, `repair.chkdsk`, cleanup, security profile application, remote scripts) were not executed during the VM pass; they still require interactive validation on the snapshot-protected VM.
+- The LiveCharts dashboard, theme switching, keyboard shortcuts and the three `1.0.3` GUI fixes were verified on the development desktop but not yet interactively inside the VM.
 - The MSI is **not Authenticode-signed**. Sign it with a trusted certificate before broad deployment.
 - NU1701 compatibility warnings remain for `OpenTK 3.3.1`, `OpenTK.GLWpfControl 3.3.0` and `SkiaSharp.Views.WPF 3.119.2`. Runtime startup is verified; full chart interaction should be exercised during manual VM validation.
 - PowerShell 7 is recommended. Windows PowerShell 5.1 is used only as a fallback and does not support every modern cmdlet used by built-in templates.
 - Running the WPF app requires an interactive desktop session.
-- The private GitHub repository contains the pushed `main` branch; the release gates below still require an elevated clean VM and a signing certificate.
+- The private GitHub repository contains the pushed `main` branch; the remaining gates are interactive VM checks and code signing.
 
 ## Next validation gate
 
-1. Follow `docs/ReleaseValidation.md` on an elevated clean VM: install `WinOpsToolkitSetup-1.0.0-x64.msi`, run as administrator, exercise all guarded actions, upgrade to a newer version, repair, uninstall and reinstall.
-2. Sign the MSI with `tools\Build\Sign-Installer.ps1` using a trusted code-signing certificate, then verify with `Get-AuthenticodeSignature` and `Test-Installer.ps1`.
-3. Exercise the LiveCharts dashboard, theme switching and keyboard shortcuts interactively during that VM pass and attach the evidence checklist to the release record.
+1. At the VM console, follow Phase 2 and Phase 3 of `docs/ReleaseValidation.md`: exercise administrator-gated actions, standard-user denial paths, LiveCharts dashboard, theme switching and keyboard shortcuts; record evidence in the checklist.
+2. Sign `WinOpsToolkitSetup-1.0.3-x64.msi` with `tools\Build\Sign-Installer.ps1` using a trusted code-signing certificate, then verify with `Get-AuthenticodeSignature` and `Test-Installer.ps1`.
+3. Deploy `1.0.3` to the VM and record the interactive GUI results in `docs/ReleaseValidation.md`, then commit and push the completed evidence.
