@@ -11,7 +11,7 @@ Build a real, installable, production-quality native Windows administration and 
 - Windows 11 Pro (x64); current shell/session is **not elevated**.
 - .NET SDK 10.0.404 installed; use `& 'C:\Program Files\dotnet\dotnet.exe'` because `dotnet` is not reliably on the session PATH.
 - PowerShell 7 and Windows PowerShell 5.1 are both present. Pester tests run under PowerShell 7.
-- Local Git repository initialized. The private GitHub repository is `https://github.com/efeffiom/winops-toolkit`; branch `main` tracks `origin/main` and commits `5fa555e` and `2b22f0c` have been pushed.
+- Local Git repository initialized. The private GitHub repository is `https://github.com/efeffiom/winops-toolkit`; branch `main` tracks `origin/main` and commits through `c6dfe35` have been pushed.
 - LiveCharts2 2.2.0 is retained for WPF charting. NuGet emits NU1701 warnings for legacy transitive WPF/SkiaSharp packages; runtime smoke testing is used to confirm compatibility.
 
 ## Implemented
@@ -63,7 +63,7 @@ Build a real, installable, production-quality native Windows administration and 
 - `tools/Build/Test-Installer.ps1`: Windows Installer COM validator for product identity, version, upgrade code, `ALLUSERS`, shortcuts, payload count, main executable, upgrade rows, launch condition and media.
 - `tools/Build/Smoke-Test.ps1`: real WPF executable launch/crash/log verification.
 - `tools/Build/New-WinOpsIcon.ps1`: generated installer icon.
-- `tools/Build/Sign-Installer.ps1`: locates `signtool.exe`, applies a SHA256 Authenticode signature with RFC3161 timestamping, optionally signs a copy, and verifies the result.
+- `tools/Build/Sign-Installer.ps1`: locates `signtool.exe` (or accepts an explicit `-SignToolPath`), applies a SHA256 Authenticode signature with RFC3161 timestamping, optionally signs a copy, and verifies the result. The SDK-free `signtool.exe` comes from the official `Microsoft.Windows.SDK.BuildTools` NuGet package.
 
 ### Documentation
 
@@ -86,7 +86,7 @@ Build a real, installable, production-quality native Windows administration and 
 - Desktop smoke test: **passed** twice, including after the final scripted publish. The published executable stayed running and logged a clean `started` event with no unhandled exceptions.
 - End-to-end `tools\Build\Build-Release.ps1 -Version 1.0.0`: **completed successfully**. It built the solution, ran xUnit (20/20) and Pester (3/3), published the self-contained app, built the MSI with 0 warnings/0 errors, copied it to `artifacts\installer\WinOpsToolkitSetup-1.0.0-x64.msi` and validated it.
 - The WPF `Page`-in-`ContentControl` startup crash was found by the smoke test, fixed by hosting pages in a `Frame`, and re-verified with a clean smoke test.
-- `tools\Build\Sign-Installer.ps1`: PowerShell parser syntax check passed and the missing-certificate error path was exercised; actual signing was not performed because no code-signing certificate is available in this session.
+- `tools\Build\Sign-Installer.ps1`: PowerShell parser syntax check passed; the missing-certificate error path was exercised earlier, and the full signing path now succeeded on `1.0.3` using `-SignToolPath` with `signtool.exe` extracted from `Microsoft.Windows.SDK.BuildTools` 10.0.26100.9457.
 - End-to-end `tools\Build\Build-Release.ps1 -Version 1.0.1`: **completed successfully**; xUnit 20/20, Pester 3/3, MSI build 0 warnings/0 errors, MSI validation passed, `WinOpsToolkitSetup-1.0.1-x64.msi` produced.
 - Elevated VMware Windows 11 Pro VM validation, with snapshot `pre-winops-validation`: clean install of `1.0.0` **passed** (exit 0), correct registry entry/version, install folder, both Start menu shortcuts and desktop shortcut verified; installed executable launched as administrator and logged `WinOps Toolkit 1.0.0.0 started (administrator: true)` with no errors.
 - VM upgrade `1.0.0` → `1.0.1` **passed** (exit 0), version and product code updated, fixed UpgradeCode unchanged, saved scripts/endpoints markers preserved. Downgrade attempt with `1.0.0` was **blocked** with exit 1603 and the message `A newer version of WinOps Toolkit is already installed. Setup will now exit.`
@@ -96,19 +96,20 @@ Build a real, installable, production-quality native Windows administration and 
 - Three VM GUI defects reported after `1.0.2` were fixed and built as `1.0.3`: end-to-end build **passed** (xUnit 20/20, Pester 3/3, MSI 0 warnings/0 errors, MSI validation passed at version `1.0.3`).
 - Host UI Automation verification of `1.0.3`: the selected navigation row renders `#2563EB` (`NavSelectedBrush`) and reverts to the nav background when another item is selected; dark mode renders the theme surface `#172033` with all DynamicResource keys resolved; PowerShell Center loads 15 templates, loads a template into the editor, executes after the Level 3 confirmation, shows `Exit code 0 in 4s - Script completed successfully.`, displays script output, writes `script-history.json` and increments the audit count.
 - Final interactive VM pass on `1.0.3`: tester confirmed **"everything works"** - all 16 modules populate immediately, navigation indicator visible, light/dark themes legible, PowerShell Center functional. Recorded in `docs/ReleaseValidation.md`.
+- Authenticode signing of `1.0.3`: **passed for local validation**. `WinOpsToolkitSetup-1.0.3-x64-signed.msi` is SHA256-signed with an RFC3161 DigiCert timestamp; `Get-AuthenticodeSignature` reports `Valid`, `signtool verify /pa /v` reports 1 file verified with 0 warnings/0 errors, and `Test-Installer.ps1 -ExpectedVersion 1.0.3` passes with `Signature: Valid`. The signer is a locally generated and locally trusted test certificate (`7832672D873FB6F96CC19CF001CA937EAB46CD5D`); a CA-issued certificate is still required for public release. Full evidence in `docs/ReleaseValidation.md`.
 
 ## Remaining work / limitations
 
 - The elevated VM installer lifecycle and the final interactive GUI pass on `1.0.3` are verified and confirmed by the tester.
 - Individual state-changing/high-risk operations (`update.install`, `repair.sfc`, `repair.dism`, `repair.chkdsk`, cleanup, security profile application, remote scripts) and the standard-user denial path were not separately evidenced with audit exports or post-condition screenshots; those checklist rows remain open in `docs/ReleaseValidation.md`.
 - Exported report artifacts (JSON, CSV, HTML, PDF) were not individually collected during the VM pass, although the report service is implemented and unit-tested.
-- The MSI is **not Authenticode-signed**. Sign it with a trusted certificate before broad deployment.
+- The MSI is Authenticode-signed with a locally generated **test** certificate and verified as `Valid` with a trusted timestamp. Before broad/public deployment it must be re-signed with a CA-issued code-signing certificate that is publicly trusted.
 - NU1701 compatibility warnings remain for `OpenTK 3.3.1`, `OpenTK.GLWpfControl 3.3.0` and `SkiaSharp.Views.WPF 3.119.2`. Runtime startup is verified; full chart interaction should be exercised during manual VM validation.
 - PowerShell 7 is recommended. Windows PowerShell 5.1 is used only as a fallback and does not support every modern cmdlet used by built-in templates.
 - Running the WPF app requires an interactive desktop session.
-- The private GitHub repository contains the pushed `main` branch through the `1.0.3` GUI fixes; the remaining gate is code signing (plus optional per-action VM evidence).
+- The private GitHub repository contains the pushed `main` branch through the `1.0.3` GUI fixes; the signing update is pushed on `main`. Remaining items are optional per-action VM evidence and CA-issued production signing.
 
 ## Next validation gate
 
-1. Sign `WinOpsToolkitSetup-1.0.3-x64.msi` with `tools\Build\Sign-Installer.ps1` using a trusted code-signing certificate, then verify with `Get-AuthenticodeSignature` and `Test-Installer.ps1`.
+1. For public release, re-sign `WinOpsToolkitSetup-1.0.3-x64.msi` with `tools\Build\Sign-Installer.ps1` using a CA-issued code-signing certificate, then repeat the `Get-AuthenticodeSignature`, `signtool verify /pa` and `Test-Installer.ps1` checks. The local test signature is already verified and recorded.
 2. Optionally close the remaining evidence rows in `docs/ReleaseValidation.md` by capturing audit exports/post-conditions for high-risk actions, standard-user denial and report exports on the snapshot-protected VM.

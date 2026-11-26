@@ -13,7 +13,7 @@ Tester: user at the VMware Windows 11 Pro VM console; snapshot `pre-winops-valid
 - Phase 5 repair, uninstall and reinstall of `1.0.1`: **pass** (all exit 0); user data preserved across uninstall.
 - Final interactive pass on `1.0.3` (installed on the VM with exit 0; SHA256 matched the host build): **pass**. The tester confirmed all modules populate immediately, the selected navigation item is visible, light/dark themes are legible, and PowerShell Center loads templates and executes scripts with visible output. Tester statement: "everything works".
 - Individual state-changing/high-risk operations (Phase 2) and the standard-user denial path were not separately evidenced with audit exports or post-condition screenshots in this session; those checklist rows remain open.
-- Phase 6 Authenticode signing is blocked pending a code-signing certificate.
+- Phase 6 Authenticode signing: **pass for local validation**. `WinOpsToolkitSetup-1.0.3-x64-signed.msi` was signed with SHA256 and an RFC3161 DigiCert timestamp; `Get-AuthenticodeSignature` reports `Valid` and `signtool verify /pa` reports 0 errors. The signer is a locally generated, locally trusted **test** certificate (`7832672D873FB6F96CC19CF001CA937EAB46CD5D`), not a publicly trusted CA certificate. A CA-issued code-signing certificate is still required before broad/public deployment.
 
 ## Prerequisites
 
@@ -145,27 +145,57 @@ Run the standard-account pass separately:
 
 ## Phase 6 - Authenticode signing
 
-Sign the release MSI on a machine that has the code-signing certificate and the Windows SDK `signtool.exe`:
+Sign the release MSI on a machine that has a code-signing certificate. `signtool.exe` does not require a full SDK install: the official `Microsoft.Windows.SDK.BuildTools` NuGet package contains it. Extract it once and pass its path with `-SignToolPath`:
 
 ```powershell
-powershell.exe -NoProfile -File 'tools\Build\Sign-Installer.ps1' -Path 'artifacts\installer\WinOpsToolkitSetup-1.0.1-x64.msi' -Thumbprint '<CERT-THUMBPRINT>' -OutputPath 'artifacts\installer\WinOpsToolkitSetup-1.0.1-x64-signed.msi'
+$tmp = Join-Path $env:TEMP 'winops-signtool'
+New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+$nupkg = Join-Path $tmp 'buildtools.nupkg'
+Invoke-WebRequest -Uri 'https://api.nuget.org/v3-flatcontainer/microsoft.windows.sdk.buildtools/10.0.26100.9457/microsoft.windows.sdk.buildtools.10.0.26100.9457.nupkg' -OutFile $nupkg
+Copy-Item $nupkg (Join-Path $tmp 'buildtools.zip')
+Expand-Archive (Join-Path $tmp 'buildtools.zip') (Join-Path $tmp 'extract') -Force
+$signtool = (Get-ChildItem (Join-Path $tmp 'extract') -Recurse -Filter signtool.exe | Where-Object FullName -match '\\x64\\' | Select-Object -First 1).FullName
+```
+
+From a certificate in the store:
+
+```powershell
+powershell.exe -NoProfile -File 'tools\Build\Sign-Installer.ps1' -Path 'artifacts\installer\WinOpsToolkitSetup-1.0.3-x64.msi' -SignToolPath $signtool -Thumbprint '<CERT-THUMBPRINT>' -OutputPath 'artifacts\installer\WinOpsToolkitSetup-1.0.3-x64-signed.msi'
 ```
 
 Or from a PFX file:
 
 ```powershell
 $secure = Read-Host -AsSecureString 'PFX password'
-powershell.exe -NoProfile -File 'tools\Build\Sign-Installer.ps1' -Path 'artifacts\installer\WinOpsToolkitSetup-1.0.1-x64.msi' -PfxPath 'C:\Secure\winops-code-signing.pfx' -PfxPassword $secure -OutputPath 'artifacts\installer\WinOpsToolkitSetup-1.0.1-x64-signed.msi'
+powershell.exe -NoProfile -File 'tools\Build\Sign-Installer.ps1' -Path 'artifacts\installer\WinOpsToolkitSetup-1.0.3-x64.msi' -SignToolPath $signtool -PfxPath 'C:\Secure\winops-code-signing.pfx' -PfxPassword $secure -OutputPath 'artifacts\installer\WinOpsToolkitSetup-1.0.3-x64-signed.msi'
 ```
 
 Then verify:
 
 ```powershell
-Get-AuthenticodeSignature -LiteralPath 'artifacts\installer\WinOpsToolkitSetup-1.0.1-x64-signed.msi' | Format-List *
-powershell.exe -NoProfile -File 'tools\Build\Test-Installer.ps1' -Path 'artifacts\installer\WinOpsToolkitSetup-1.0.1-x64-signed.msi' -ExpectedVersion 1.0.1
+Get-AuthenticodeSignature -LiteralPath 'artifacts\installer\WinOpsToolkitSetup-1.0.3-x64-signed.msi' | Format-List *
+& $signtool verify /pa /v 'artifacts\installer\WinOpsToolkitSetup-1.0.3-x64-signed.msi'
+powershell.exe -NoProfile -File 'tools\Build\Test-Installer.ps1' -Path 'artifacts\installer\WinOpsToolkitSetup-1.0.3-x64-signed.msi' -ExpectedVersion 1.0.3
 ```
 
 Accept the signed package only when `Get-AuthenticodeSignature` reports `Valid`, the signer chain is trusted, and the timestamp certificate is present.
+
+### Result for 1.0.3
+
+| Check | Result |
+| --- | --- |
+| Signed artifact | `artifacts\installer\WinOpsToolkitSetup-1.0.3-x64-signed.msi` |
+| Signer | `CN=WinOps Toolkit Test Signing (Local Validation Only)` |
+| Signer thumbprint | `7832672D873FB6F96CC19CF001CA937EAB46CD5D` |
+| Signer EKU / key | Code Signing, private key present, valid to 2028-11-26 |
+| Digest / timestamp | SHA256 file digest, SHA256 RFC3161 timestamp from `CN=DigiCert SHA256 RSA4096 Timestamp Responder 2026 1` |
+| `Get-AuthenticodeSignature` | `Status: Valid`, `StatusMessage: Signature verified.` (chain trusted in the local user stores) |
+| `signtool verify /pa /v` | 1 file verified, 0 warnings, 0 errors, exit 0 |
+| `Test-Installer.ps1 -ExpectedVersion 1.0.3` | Passed; product identity, UpgradeCode, `ALLUSERS=1`, 3 shortcuts, 451 file rows and `Signature: Valid` |
+| Unsigned SHA256 | `7515E0CFB7271E6C4F4BF5A2896177057025AFF314194B958D5C535BC7B36C73` |
+| Signed SHA256 | `C5646DBB2A7932F9ADB21AA259B92A6B29BC4ACC61C2B2B8D1DCEF07C05F0FF5` |
+
+**Release caveat.** The certificate used here was generated locally and added only to the current user's `Root` and `TrustedPublisher` stores. It proves the signing pipeline works and the package is intact on machines that trust it, but it is **not** a publicly trusted signature. Before broad or public distribution, re-sign the same MSI with a CA-issued code-signing certificate and repeat the three verification commands above.
 
 ## Evidence checklist
 
@@ -182,8 +212,8 @@ Accept the signed package only when `Get-AuthenticodeSignature` reports `Valid`,
 | Uninstall | `uninstall-1.0.1.log`, shortcut/file absence | Pass | Exit 0; user data preserved. |
 | Reinstall | `reinstall-1.0.1.log` | Pass | Exit 0; all install artifacts restored. |
 | PowerShell Center / nav / dark mode | VM UI pass on `1.0.3`, host UI Automation | Pass | Templates load, scripts execute with visible output and audit entries; three reported GUI defects fixed. |
-| Signature | `Get-AuthenticodeSignature` output | Blocked | No code-signing certificate provided. |
-| Post-sign MSI validation | Validator output | Blocked | Depends on signing gate. |
+| Signature | `Get-AuthenticodeSignature` + `signtool verify /pa` output | Pass | SHA256 signed and RFC3161 timestamped; `Status: Valid`, 0 verify errors. Locally trusted test certificate only - re-sign with a CA certificate for public release. |
+| Post-sign MSI validation | Validator output | Pass | `Test-Installer.ps1 -ExpectedVersion 1.0.3` passed with `Signature: Valid`. |
 
 ## Sign-off
 

@@ -2,6 +2,8 @@
 param(
     [string]$Path,
 
+    [string]$SignToolPath,
+
     [Parameter(ParameterSetName = 'Thumbprint')]
     [string]$Thumbprint,
 
@@ -27,6 +29,17 @@ $ErrorActionPreference = 'Stop'
 
 function Resolve-SignTool
 {
+    param([string]$ToolPath)
+
+    if (-not [string]::IsNullOrWhiteSpace($ToolPath))
+    {
+        if (-not (Test-Path -LiteralPath $ToolPath))
+        {
+            throw "signtool.exe was not found at: $ToolPath"
+        }
+        return (Resolve-Path -LiteralPath $ToolPath).Path
+    }
+
     $command = Get-Command signtool.exe -ErrorAction SilentlyContinue
     if ($command) { return $command.Source }
 
@@ -166,7 +179,7 @@ if (-not $certificate.HasPrivateKey)
     throw "Certificate does not have a private key and cannot sign: $($certificate.Subject)"
 }
 
-$signTool = Resolve-SignTool
+$signTool = Resolve-SignTool -ToolPath $SignToolPath
 $arguments = @('sign', '/fd', $Algorithm, '/sha1', ($certificate.Thumbprint -replace '\s', ''))
 if (-not $SkipTimestamp)
 {
